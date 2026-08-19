@@ -37,7 +37,8 @@ factions:
     lineOpacity: 1.0
 ```
 
-Reload the plugin (or restart the server) for changes to take effect.
+Restart the server for changes to take effect. The plugin registers no commands, so
+there is no in-game way to reload its configuration.
 
 ### Changing the Overlay Y-Level
 

@@ -38,7 +38,12 @@ bluemap:
 
 **Type:** string (hex colour)
 **Default:** `"#FFFFFF"`
-**Description:** The fill colour used for factions that have no entry under `factions:`. This setting is overridden when a deterministic colour is generated from the faction ID (see `generateDeterministicColor` in the source).
+**Description:** Intended as the fill colour for factions that have no entry under `factions:`.
+
+> **Not currently in effect.** The source never reads this key. A faction without a
+> `factions:` override always receives a colour derived from its ID by
+> `generateDeterministicColor`, so changing this value has no visible result. Use a
+> per-faction `factions:` override to control a faction's fill colour.
 
 **Example:**
 
@@ -68,7 +73,12 @@ default-color:
 
 **Type:** string (hex colour)
 **Default:** `"#209cee"`
-**Description:** The border line colour used for factions that have no entry under `factions:`.
+**Description:** Intended as the border line colour for factions that have no entry under `factions:`.
+
+> **Not currently in effect.** The source never reads this key. A faction without a
+> `factions:` override always receives a border colour derived from its ID by
+> `generateDeterministicColor`, so changing this value has no visible result. Use a
+> per-faction `factions:` override to control a faction's border colour.
 
 **Example:**
 
