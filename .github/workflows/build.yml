@@ -22,5 +22,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Download MedievalFactions dependency
+        run: |
+          mkdir -p libs
+          curl -L -o libs/medieval-factions-5.6.0-all.jar \
+            https://github.com/Dans-Plugins/Medieval-Factions/releases/download/v5.6.0/medieval-factions-5.6.0-all.jar
+
       - name: Build with Maven
         run: mvn clean package
