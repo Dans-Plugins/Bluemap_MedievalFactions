@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Land claims are no longer drawn on every map. A marker set is now kept per BlueMap map, and each world's claims are placed only on the maps that render that world. Previously a single shared marker set was registered on every map, so Overworld claims were drawn over the Nether at unscaled coordinates — eight times out of place, given the 1:8 coordinate ratio. A world BlueMap does not render is now skipped rather than drawn somewhere arbitrary.
+
+### Changed
+
+- Faction territory is coloured from the faction's own colour flag in Medieval Factions, so the web map matches the colour already shown in chat and on territory titles. The previous faction-ID hash is retained as a fallback for when the flag is unset or still holds the literal `random` placeholder.
+- The build targets Medieval Factions 6.0.0. The API survived the major version: `MfFactionId` is a Kotlin value class that erases to `String`, so the existing Java call sites still resolve.
+
 ## [1.0] – Initial Release
 
 ### Added

@@ -72,15 +72,15 @@
     <dependency>
       <groupId>com.dansplugins</groupId>
       <artifactId>medievalfactions</artifactId>
-      <version>5.6.0</version>
+      <version>6.0.0-live</version>
       <scope>system</scope>
-      <systemPath>${project.basedir}/libs/medieval-factions-5.6.0-all.jar</systemPath>
+      <systemPath>${project.basedir}/libs/medieval-factions-6.0.0-live-all.jar</systemPath>
     </dependency>
   </dependencies>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>
