@@ -8,11 +8,14 @@ import com.dansplugins.factionsystem.event.faction.FactionUnclaimEvent;
 import com.dansplugins.factionsystem.faction.MfFaction;
 import com.flowpowered.math.vector.Vector2d;
 import de.bluecolored.bluemap.api.BlueMapAPI;
+import de.bluecolored.bluemap.api.BlueMapMap;
+import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.ShapeMarker;
 import de.bluecolored.bluemap.api.math.Color;
 import de.bluecolored.bluemap.api.math.Shape;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -28,14 +31,27 @@ import java.util.stream.Collectors;
 
 public class BlueMapIntegration implements Listener {
 
+    private static final String MARKER_SET_ID = "mf_claims";
+    private static final String MARKER_SET_LABEL = "Medieval Factions Claims";
+
     private final Plugin plugin;
-    private MarkerSet markerSet;
     private MedievalFactions medievalFactions;
+    private BlueMapAPI api;
+
+    /**
+     * One MarkerSet per BlueMap map, keyed by map id.
+     *
+     * A single shared MarkerSet cannot work: BlueMap renders a marker set on every
+     * map it is attached to, so one shared set puts every world's claims on every
+     * map. Overworld claims then appear on the Nether map at raw coordinates,
+     * which is eight times out of place given the 1:8 coordinate ratio.
+     */
+    private final Map<String, MarkerSet> markerSetsByMapId = new ConcurrentHashMap<>();
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private ScheduledExecutorService scheduledExecutor;
     private final Map<String, ScheduledFuture<?>> pendingTasks = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> currentFactionMarkers = new ConcurrentHashMap<>();
+    private final Map<String, List<MarkerRef>> currentFactionMarkers = new ConcurrentHashMap<>();
     private final Map<String, Color[]> factionColors = new HashMap<>();
     private final long DEBOUNCE_MS = 1500L;
 
@@ -53,10 +69,16 @@ public class BlueMapIntegration implements Listener {
 
     public boolean enable(BlueMapAPI api, MedievalFactions medievalFactions) {
         this.medievalFactions = medievalFactions;
+        this.api = api;
 
-        this.markerSet = MarkerSet.builder().label("Medieval Factions Claims").build();
-        api.getWorlds().forEach((mapWorld) -> mapWorld.getMaps()
-                .forEach((map) -> map.getMarkerSets().put("mf_claims", this.markerSet)));
+        this.markerSetsByMapId.clear();
+        for (BlueMapMap map : api.getMaps()) {
+            MarkerSet set = MarkerSet.builder().label(MARKER_SET_LABEL).build();
+            map.getMarkerSets().put(MARKER_SET_ID, set);
+            this.markerSetsByMapId.put(map.getId(), set);
+        }
+        plugin.getLogger().info("Registered claim marker sets on " + this.markerSetsByMapId.size() + " map(s): "
+                + String.join(", ", this.markerSetsByMapId.keySet()));
 
         initFactionColors();
         initialSync();
@@ -81,12 +103,9 @@ public class BlueMapIntegration implements Listener {
         int removedCount = this.currentFactionMarkers.values().stream().mapToInt(List::size).sum();
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            if (this.markerSet == null)
-                return;
-
-            for (List<String> ids : this.currentFactionMarkers.values()) {
-                for (String id : ids)
-                    this.markerSet.remove(id);
+            for (List<MarkerRef> refs : this.currentFactionMarkers.values()) {
+                for (MarkerRef ref : refs)
+                    this.removeMarker(ref);
             }
             this.currentFactionMarkers.clear();
 
@@ -244,46 +263,79 @@ public class BlueMapIntegration implements Listener {
         return result;
     }
 
-    private void applyFactionMarkers(String factionId, Map<UUID, List<PolygonData>> perWorld) {
-        List<String> old = this.currentFactionMarkers.remove(factionId);
-        if (old != null)
-            old.forEach(this.markerSet::remove);
+    /**
+     * Resolves the BlueMap maps that render a given Minecraft world.
+     *
+     * Returns empty when BlueMap does not render the world at all — the End has no
+     * configured map on this server, and claims there must simply not be drawn
+     * rather than being dumped onto whichever map happens to be handy.
+     *
+     * Must run on the main thread: it calls into the Bukkit world lookup.
+     */
+    private Collection<BlueMapMap> mapsForWorld(UUID worldId) {
+        if (this.api == null)
+            return Collections.emptyList();
+        World bukkitWorld = Bukkit.getWorld(worldId);
+        if (bukkitWorld == null)
+            return Collections.emptyList();
+        Optional<BlueMapWorld> blueMapWorld = this.api.getWorld(bukkitWorld);
+        return blueMapWorld.map(BlueMapWorld::getMaps).orElse(Collections.emptyList());
+    }
 
-        List<String> newIds = new ArrayList<>();
-        String factionName = this.findFactionNameById(factionId);
+    private void removeMarker(MarkerRef ref) {
+        MarkerSet set = this.markerSetsByMapId.get(ref.mapId);
+        if (set != null)
+            set.remove(ref.markerId);
+    }
+
+    private void applyFactionMarkers(String factionId, Map<UUID, List<PolygonData>> perWorld) {
+        List<MarkerRef> old = this.currentFactionMarkers.remove(factionId);
+        if (old != null)
+            old.forEach(this::removeMarker);
+
+        List<MarkerRef> newRefs = new ArrayList<>();
+        MfFaction faction = this.findFactionById(factionId);
+        String factionName = (faction != null) ? faction.getName() : factionId;
 
         // Determine color:
         // 1. Check if configured in 'factions' config override
-        // 2. If not, use deterministic color hash to create a unique color for the
-        // faction
+        // 2. Otherwise use the faction's own colour flag in MedievalFactions
+        // 3. Otherwise fall back to a deterministic hash of the faction id
         Color[] colors = this.factionColors.get(factionName);
 
         if (colors == null) {
-            // No override found, generate dynamic color or use default
-            int deterministicColor = generateDeterministicColor(factionId);
-
             // Get defaults from config
             float fillOpacity = (float) plugin.getConfig().getDouble("default-color.fill-opacity", 0.35);
             float lineOpacity = (float) plugin.getConfig().getDouble("default-color.line-opacity", 1.0);
 
-            // Allow default color to override random/deterministic behavior if requested,
-            // but user asked for "random color assigned by MF" logic.
-            // Since MF might not expose it easily, we use a hash code which is consistent
-            // and unique-ish.
+            // Prefer the faction's own colour flag, so the web map matches the colour
+            // players already see in chat and territory titles. Fall back to a
+            // deterministic hash if the flag is absent or unparseable (for example
+            // when it is still the literal "random" placeholder).
+            Integer rgb = this.getFactionFlagColor(faction);
+            int resolved = (rgb != null) ? rgb : generateDeterministicColor(factionId);
 
             colors = new Color[] {
-                    new Color(deterministicColor, fillOpacity),
-                    new Color(deterministicColor, lineOpacity) // Same color for line, maybe darker?
+                    new Color(resolved, fillOpacity),
+                    new Color(resolved, lineOpacity)
             };
         }
 
         // Configurable values
         float mapY = (float) plugin.getConfig().getDouble("bluemap.y-level", 70.0);
         String labelFormat = plugin.getConfig().getString("bluemap.label-format", "Faction: %faction%");
+        String label = labelFormat.replace("%faction%", factionName);
 
         for (Map.Entry<UUID, List<PolygonData>> e : perWorld.entrySet()) {
             UUID worldId = e.getKey();
             List<PolygonData> polygons = e.getValue();
+            if (polygons.isEmpty())
+                continue;
+
+            // Only draw this world's claims on the maps that actually render it.
+            Collection<BlueMapMap> maps = this.mapsForWorld(worldId);
+            if (maps.isEmpty())
+                continue;
 
             for (int i = 0; i < polygons.size(); ++i) {
                 PolygonData pd = polygons.get(i);
@@ -302,8 +354,6 @@ public class BlueMapIntegration implements Listener {
                     holeShapes.add(new Shape(hpts));
                 }
 
-                String label = labelFormat.replace("%faction%", (factionName != null ? factionName : factionId));
-
                 ShapeMarker.Builder b = ShapeMarker.builder()
                         .label(label)
                         .shape(outerShape, mapY)
@@ -317,11 +367,17 @@ public class BlueMapIntegration implements Listener {
 
                 ShapeMarker marker = b.build();
                 String id = "faction_" + factionId + "_world_" + worldId + "_poly_" + i;
-                this.markerSet.put(id, marker);
-                newIds.add(id);
+
+                for (BlueMapMap map : maps) {
+                    MarkerSet set = this.markerSetsByMapId.get(map.getId());
+                    if (set == null)
+                        continue;
+                    set.put(id, marker);
+                    newRefs.add(new MarkerRef(map.getId(), id));
+                }
             }
         }
-        this.currentFactionMarkers.put(factionId, newIds);
+        this.currentFactionMarkers.put(factionId, newRefs);
     }
 
     /**
@@ -339,12 +395,48 @@ public class BlueMapIntegration implements Listener {
         return (r << 16) | (g << 8) | b;
     }
 
-    private String findFactionNameById(String id) {
+    private MfFaction findFactionById(String id) {
         for (MfFaction f : this.medievalFactions.getServices().getFactionService().getFactions()) {
             if (f.getId().equals(id))
-                return f.getName();
+                return f;
         }
-        return id;
+        return null;
+    }
+
+    /**
+     * Reads the faction's colour flag from MedievalFactions and parses it to RGB.
+     * Returns null when the faction is unknown, the flag is unset, or the value is
+     * not a hex colour (MedievalFactions stores "random" as a placeholder).
+     */
+    private Integer getFactionFlagColor(MfFaction faction) {
+        if (faction == null)
+            return null;
+        try {
+            String hex = faction.getFlags().get(this.medievalFactions.getFlags().getColor());
+            if (hex == null)
+                return null;
+            hex = hex.trim();
+            if (hex.startsWith("#"))
+                hex = hex.substring(1);
+            if (hex.length() != 6)
+                return null;
+            return Integer.parseInt(hex, 16);
+        } catch (Exception ex) {
+            plugin.getLogger().warning(
+                    "Could not read colour flag for faction " + faction.getName() + ": " + ex.getMessage());
+            return null;
+        }
+    }
+
+    /** A marker as placed on one specific BlueMap map. */
+    private static class MarkerRef {
+        final String mapId;
+        final String markerId;
+
+        MarkerRef(String mapId, String markerId) {
+            this.mapId = mapId;
+            this.markerId = markerId;
+        }
     }
 
     private static class PolygonData {
