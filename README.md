@@ -50,27 +50,30 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/Bluemap_Medi
 
 ### Unit Tests
 
-Linux:
+This project does not currently ship an automated test suite. There is no `src/test/`
+directory and no test framework declared in `pom.xml`, so `mvn clean test` executes
+zero tests — a `BUILD SUCCESS` from it verifies nothing.
 
-```
-mvn clean test
-```
-
-Windows:
-
-```
-mvn.cmd clean test
-```
-
-If you see `BUILD SUCCESS`, the tests have passed.
+Changes are currently verified by building the plugin and running it on a Paper server
+with Medieval Factions and BlueMap installed.
 
 ## Development
+
+### Build Prerequisite
+
+Medieval Factions is declared in `pom.xml` as a `system`-scope dependency resolved from
+`libs/medieval-factions-6.0.0-live-all.jar`. That directory is gitignored and the jar is not
+distributed with this repository, so it must be supplied before any Maven goal will run.
+See [CONTRIBUTING.md](CONTRIBUTING.md#build-prerequisite) for the steps.
 
 ### Building the Plugin
 
 ```
 mvn clean package
 ```
+
+Requires **JDK 21 or newer** — `bluemap-api` and `paper-api` ship Java 21 class files, so
+a Java 17 compiler fails with `bad class file` even though the artifact targets Java 17.
 
 The compiled jar will be placed in the `target/` directory.
 

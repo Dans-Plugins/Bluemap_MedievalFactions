@@ -7,7 +7,10 @@ bluemap:
   label-format: "Faction: %faction%"
 
 # Faction Color Configuration
-# If MedievalFactions does not provide a specific color, these settings will be used.
+# Applied to factions with no entry under 'factions:' below.
+# NOTE: only fill-opacity and line-opacity are currently read by the plugin. The
+# fill-color and line-color values are ignored -- a faction without an override is
+# always given a colour derived from its faction ID. See CONFIG.md.
 default-color:
   fill-color: "#FFFFFF"
   fill-opacity: 0.35

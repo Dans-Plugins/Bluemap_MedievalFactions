@@ -23,21 +23,43 @@ Thank you for your interest in contributing to Bluemap_MedievalFactions! This gu
 2. Fork the repository by clicking **Fork** at the top right of the repo page.
 3. Clone your fork: `git clone https://github.com/<your-username>/Bluemap_MedievalFactions.git`
 4. Open the project in your IDE.
-5. Stage the MedievalFactions API jar. The build takes MedievalFactions as a
-   system-scoped dependency read from `libs/`, and `libs/` is gitignored, so a
-   fresh clone will not build until you put the jar there yourself:
-
-   ```bash
-   mkdir -p libs
-   gh release download dev -R Dans-Plugins/Medieval-Factions \
-     -D libs -p '*-all.jar' --clobber
-   mv libs/medieval-factions-*-all.jar libs/medieval-factions-6.0.0-live-all.jar
-   ```
-
-   The filename matters — `pom.xml` names it exactly. CI does the same thing in
-   `.github/workflows/build.yml`.
+5. Supply the Medieval Factions jar (see [Build Prerequisite](#build-prerequisite) below) — the build cannot resolve its dependencies without it.
 6. Build the plugin: `mvn clean package`
    If you encounter errors, please open an issue.
+
+## Build Prerequisite
+
+`pom.xml` declares Medieval Factions as a `system`-scope dependency resolved from a
+path inside the clone:
+
+```xml
+<systemPath>${project.basedir}/libs/medieval-factions-6.0.0-live-all.jar</systemPath>
+```
+
+`libs/` is listed in `.gitignore` and the jar is not distributed with this repository,
+so it must be supplied before any Maven goal will run. Medieval Factions' rolling `dev`
+release provides a suitable build:
+
+```bash
+mkdir -p libs
+gh release download dev -R Dans-Plugins/Medieval-Factions \
+  -D libs -p '*-all.jar' --clobber
+mv libs/medieval-factions-*-all.jar libs/medieval-factions-6.0.0-live-all.jar
+```
+
+The filename must match the `systemPath` above; Maven resolves it by path, not by
+coordinate. The rename is required because **no published Medieval Factions artifact
+carries the version string `6.0.0-live`** — the `dev` asset is named for its build date.
+
+Without that file, `mvn clean package` fails during dependency resolution with
+`Could not find artifact com.dansplugins:medievalfactions:jar:6.0.0-live`. No repository
+declaration replaces this step: neither `com.dansplugins:medievalfactions` against the
+repositories declared in `pom.xml` nor `com.github.Dans-Plugins:Medieval-Factions`
+against JitPack resolves that coordinate.
+
+CI performs exactly these steps — see the `Fetch the MedievalFactions API jar` step in
+[`.github/workflows/build.yml`](.github/workflows/build.yml), which is the authoritative
+copy if this section drifts.
 
 ## Identifying What to Work On
 
@@ -52,21 +74,32 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/Bluemap_Med
 ## Making Changes
 
 1. Make sure an issue exists for the work. If not, create one.
-2. Switch to `develop`: `git checkout develop`
+2. Switch to `master`: `git checkout master`
 3. Create a branch: `git checkout -b <branch-name>`
 4. Make your changes.
 5. Test your changes.
 6. Commit: `git commit -m "Description of changes"`
 7. Push: `git push origin <branch-name>`
-8. Open a pull request against `develop`, link the related issue with `#<number>`.
+8. Open a pull request against `master`, link the related issue with `#<number>`.
 9. Address review feedback.
+
+`master` is the only branch in this repository; there is no `main` or `develop` branch.
 
 ## Testing
 
-Run the unit tests with:
+This project does not currently have an automated test suite — there is no
+`src/test/` directory and no test framework declared in `pom.xml`. `mvn clean test`
+therefore executes zero tests, and a `BUILD SUCCESS` from it is not evidence that
+anything was verified.
 
-Linux: `mvn clean test`
-Windows: `mvn.cmd clean test`
+Until a test suite exists, verify changes by building the plugin and running it on a
+Paper server with Medieval Factions and BlueMap installed:
+
+Linux: `mvn clean package`
+Windows: `mvn.cmd clean package`
+
+Adding test infrastructure is welcome; see [Build Prerequisite](#build-prerequisite)
+for what is needed to make any Maven goal run at all.
 
 ## Questions
 
