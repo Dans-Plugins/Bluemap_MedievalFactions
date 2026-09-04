@@ -7,7 +7,7 @@
 
     <groupId>com.kilz</groupId>
     <artifactId>MF_Bluemap</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>MF_Bluemap</name>
