@@ -13,6 +13,7 @@ Thank you for your interest in contributing to Bluemap_MedievalFactions! This gu
 
 - A GitHub account
 - Git installed on your local machine
+- A JDK. **Java 21 or newer is required to build**, even though the artifact targets Java 17: `bluemap-api` and `paper-api` ship Java 21 class files, and a Java 17 compiler rejects them with `bad class file`.
 - A Java IDE or text editor
 - A basic understanding of Java
 
