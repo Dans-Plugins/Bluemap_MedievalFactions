@@ -22,7 +22,20 @@ Thank you for your interest in contributing to Bluemap_MedievalFactions! This gu
 2. Fork the repository by clicking **Fork** at the top right of the repo page.
 3. Clone your fork: `git clone https://github.com/<your-username>/Bluemap_MedievalFactions.git`
 4. Open the project in your IDE.
-5. Build the plugin: `mvn clean package`
+5. Stage the MedievalFactions API jar. The build takes MedievalFactions as a
+   system-scoped dependency read from `libs/`, and `libs/` is gitignored, so a
+   fresh clone will not build until you put the jar there yourself:
+
+   ```bash
+   mkdir -p libs
+   gh release download dev -R Dans-Plugins/Medieval-Factions \
+     -D libs -p '*-all.jar' --clobber
+   mv libs/medieval-factions-*-all.jar libs/medieval-factions-6.0.0-live-all.jar
+   ```
+
+   The filename matters — `pom.xml` names it exactly. CI does the same thing in
+   `.github/workflows/build.yml`.
+6. Build the plugin: `mvn clean package`
    If you encounter errors, please open an issue.
 
 ## Identifying What to Work On
