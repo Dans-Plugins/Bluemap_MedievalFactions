@@ -14,11 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+
+      - name: Fetch the MedievalFactions API jar
+        # The pom takes MedievalFactions as a system-scoped dependency from
+        # libs/, which is gitignored, so a fresh checkout cannot build. Pull
+        # MedievalFactions' rolling dev build and stage it under the name the
+        # pom expects. See CONTRIBUTING.md for the local equivalent.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p libs
+          gh release download dev -R Dans-Plugins/Medieval-Factions \
+            -D libs -p '*-all.jar' --clobber
+          mv libs/medieval-factions-*-all.jar libs/medieval-factions-6.0.0-live-all.jar
 
       - name: Build with Maven
         run: mvn clean package
