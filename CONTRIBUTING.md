@@ -13,6 +13,7 @@ Thank you for your interest in contributing to Bluemap_MedievalFactions! This gu
 
 - A GitHub account
 - Git installed on your local machine
+- A JDK. **Java 21 or newer is required to build**, even though the artifact targets Java 17: `bluemap-api` and `paper-api` ship Java 21 class files, and a Java 17 compiler rejects them with `bad class file`.
 - A Java IDE or text editor
 - A basic understanding of Java
 
@@ -32,29 +33,33 @@ Thank you for your interest in contributing to Bluemap_MedievalFactions! This gu
 path inside the clone:
 
 ```xml
-<systemPath>${project.basedir}/libs/medieval-factions-5.6.0-all.jar</systemPath>
+<systemPath>${project.basedir}/libs/medieval-factions-6.0.0-live-all.jar</systemPath>
 ```
 
 `libs/` is listed in `.gitignore` and the jar is not distributed with this repository,
-so it must be supplied out of band before any Maven goal will run. Obtain the Medieval
-Factions 5.6.0 plugin jar — the shadowed `-all` build, from the
-[Medieval Factions releases](https://github.com/Dans-Plugins/Medieval-Factions/releases)
-page or from a local build of that project — and place it at exactly this path,
-relative to the repository root:
+so it must be supplied before any Maven goal will run. Medieval Factions' rolling `dev`
+release provides a suitable build:
 
-```
-mkdir libs
-# copy the jar into libs/ under the name medieval-factions-5.6.0-all.jar
+```bash
+mkdir -p libs
+gh release download dev -R Dans-Plugins/Medieval-Factions \
+  -D libs -p '*-all.jar' --clobber
+mv libs/medieval-factions-*-all.jar libs/medieval-factions-6.0.0-live-all.jar
 ```
 
 The filename must match the `systemPath` above; Maven resolves it by path, not by
-coordinate.
+coordinate. The rename is required because **no published Medieval Factions artifact
+carries the version string `6.0.0-live`** — the `dev` asset is named for its build date.
 
 Without that file, `mvn clean package` fails during dependency resolution with
-`Could not find artifact com.dansplugins:medievalfactions:jar:5.6.0`. No repository
-declaration is known to replace this step: neither `com.dansplugins:medievalfactions:5.6.0`
-against the repositories declared in `pom.xml` nor
-`com.github.Dans-Plugins:Medieval-Factions:v5.6.0` against JitPack resolves.
+`Could not find artifact com.dansplugins:medievalfactions:jar:6.0.0-live`. No repository
+declaration replaces this step: neither `com.dansplugins:medievalfactions` against the
+repositories declared in `pom.xml` nor `com.github.Dans-Plugins:Medieval-Factions`
+against JitPack resolves that coordinate.
+
+CI performs exactly these steps — see the `Fetch the MedievalFactions API jar` step in
+[`.github/workflows/build.yml`](.github/workflows/build.yml), which is the authoritative
+copy if this section drifts.
 
 ## Identifying What to Work On
 

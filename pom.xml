@@ -60,9 +60,9 @@
         <dependency>
             <groupId>com.dansplugins</groupId>
             <artifactId>medievalfactions</artifactId>
-            <version>5.6.0</version>
+            <version>6.0.0-live</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/medieval-factions-5.6.0-all.jar</systemPath>
+            <systemPath>${project.basedir}/libs/medieval-factions-6.0.0-live-all.jar</systemPath>
         </dependency>
         
         <!-- JTS Core (Required for geometry operations) -->

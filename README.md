@@ -62,7 +62,7 @@ with Medieval Factions and BlueMap installed.
 ### Build Prerequisite
 
 Medieval Factions is declared in `pom.xml` as a `system`-scope dependency resolved from
-`libs/medieval-factions-5.6.0-all.jar`. That directory is gitignored and the jar is not
+`libs/medieval-factions-6.0.0-live-all.jar`. That directory is gitignored and the jar is not
 distributed with this repository, so it must be supplied before any Maven goal will run.
 See [CONTRIBUTING.md](CONTRIBUTING.md#build-prerequisite) for the steps.
 
@@ -71,6 +71,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#build-prerequisite) for the steps.
 ```
 mvn clean package
 ```
+
+Requires **JDK 21 or newer** — `bluemap-api` and `paper-api` ship Java 21 class files, so
+a Java 17 compiler fails with `bad class file` even though the artifact targets Java 17.
 
 The compiled jar will be placed in the `target/` directory.
 
