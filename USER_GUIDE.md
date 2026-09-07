@@ -26,7 +26,7 @@ Once the plugin is running, no action is needed — claims are synced automatica
 
 ### Customising Faction Colours
 
-By default each faction is assigned a deterministic colour derived from its internal ID. To override the colour for a specific faction, add an entry under `factions:` in `config.yml`:
+By default each faction is drawn in its own colour flag from Medieval Factions, so the web map matches the colour players already see in chat and on territory titles. A faction whose flag is unset — or is still the literal `random` placeholder — falls back to a colour derived from its internal ID, which is stable across restarts. To override the colour for a specific faction, add an entry under `factions:` in `config.yml`:
 
 ```yaml
 factions:

@@ -20,13 +20,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.operation.union.UnaryUnionOp;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class BlueMapIntegration implements Listener {
@@ -48,7 +45,6 @@ public class BlueMapIntegration implements Listener {
      */
     private final Map<String, MarkerSet> markerSetsByMapId = new ConcurrentHashMap<>();
 
-    private final GeometryFactory geometryFactory = new GeometryFactory();
     private ScheduledExecutorService scheduledExecutor;
     private final Map<String, ScheduledFuture<?>> pendingTasks = new ConcurrentHashMap<>();
     private final Map<String, List<MarkerRef>> currentFactionMarkers = new ConcurrentHashMap<>();
@@ -136,8 +132,8 @@ public class BlueMapIntegration implements Listener {
                     float lineOpacity = (float) plugin.getConfig().getDouble("factions." + factionName + ".lineOpacity",
                             1.0);
 
-                    int fillRGB = parseColor(fillHex);
-                    int lineRGB = parseColor(lineHex);
+                    int fillRGB = FactionColors.parseColor(fillHex);
+                    int lineRGB = FactionColors.parseColor(lineHex);
 
                     this.factionColors.put(factionName, new Color[] {
                             new Color(fillRGB, fillOpacity),
@@ -148,13 +144,6 @@ public class BlueMapIntegration implements Listener {
                 }
             }
         }
-    }
-
-    private int parseColor(String hex) {
-        if (hex.startsWith("#")) {
-            hex = hex.substring(1);
-        }
-        return Integer.parseInt(hex, 16);
     }
 
     private void initialSync() {
@@ -202,63 +191,26 @@ public class BlueMapIntegration implements Listener {
         ScheduledFuture<?> future = this.scheduledExecutor.schedule(() -> {
             this.pendingTasks.remove(factionId);
             try {
-                Map<UUID, List<PolygonData>> perWorld = this.computeUnionPerWorld(snapshot);
+                Map<UUID, List<ClaimGeometry.PolygonData>> perWorld = this.computeUnionPerWorld(snapshot);
                 Bukkit.getScheduler().runTask(plugin, () -> this.applyFactionMarkers(factionId, perWorld));
             } catch (Throwable t) {
-                plugin.getLogger().severe("Error processing geometry for faction " + factionId + ": " + t);
-                t.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE,
+                        "Error processing geometry for faction " + factionId, t);
             }
         }, DEBOUNCE_MS, TimeUnit.MILLISECONDS);
         this.pendingTasks.put(factionId, future);
     }
 
-    private Map<UUID, List<PolygonData>> computeUnionPerWorld(List<MfClaimedChunk> claimsSnapshot) {
+    private Map<UUID, List<ClaimGeometry.PolygonData>> computeUnionPerWorld(List<MfClaimedChunk> claimsSnapshot) {
         Map<UUID, List<MfClaimedChunk>> byWorld = claimsSnapshot.stream()
                 .collect(Collectors.groupingBy(MfClaimedChunk::getWorldId));
-        Map<UUID, List<PolygonData>> result = new HashMap<>();
+        Map<UUID, List<ClaimGeometry.PolygonData>> result = new HashMap<>();
 
         for (Map.Entry<UUID, List<MfClaimedChunk>> e : byWorld.entrySet()) {
-            UUID worldId = e.getKey();
-            List<MfClaimedChunk> list = e.getValue();
-            List<Polygon> rects = new ArrayList<>(list.size());
-
-            for (MfClaimedChunk c : list) {
-                double minX = (double) c.getX() * 16.0;
-                double minZ = (double) c.getZ() * 16.0;
-                double maxX = minX + 16.0;
-                double maxZ = minZ + 16.0;
-                Coordinate[] coords = new Coordinate[] {
-                        new Coordinate(minX, minZ),
-                        new Coordinate(maxX, minZ),
-                        new Coordinate(maxX, maxZ),
-                        new Coordinate(minX, maxZ),
-                        new Coordinate(minX, minZ)
-                };
-                rects.add(this.geometryFactory.createPolygon(coords));
-            }
-
-            if (rects.isEmpty()) {
-                result.put(worldId, Collections.emptyList());
-            } else {
-                Geometry unioned = UnaryUnionOp.union(rects);
-                List<PolygonData> polygons = new ArrayList<>();
-                int num = unioned.getNumGeometries();
-
-                for (int i = 0; i < num; ++i) {
-                    Geometry g = unioned.getGeometryN(i);
-                    if (g instanceof Polygon) {
-                        Polygon poly = (Polygon) g;
-                        Coordinate[] shellCoords = poly.getExteriorRing().getCoordinates();
-                        List<Coordinate[]> holes = new ArrayList<>();
-                        int holeCount = poly.getNumInteriorRing();
-                        for (int h = 0; h < holeCount; ++h) {
-                            holes.add(poly.getInteriorRingN(h).getCoordinates());
-                        }
-                        polygons.add(new PolygonData(shellCoords, holes));
-                    }
-                }
-                result.put(worldId, polygons);
-            }
+            List<ClaimGeometry.ChunkPos> chunks = e.getValue().stream()
+                    .map(c -> new ClaimGeometry.ChunkPos(c.getX(), c.getZ()))
+                    .collect(Collectors.toList());
+            result.put(e.getKey(), ClaimGeometry.unionChunks(chunks));
         }
         return result;
     }
@@ -288,7 +240,7 @@ public class BlueMapIntegration implements Listener {
             set.remove(ref.markerId);
     }
 
-    private void applyFactionMarkers(String factionId, Map<UUID, List<PolygonData>> perWorld) {
+    private void applyFactionMarkers(String factionId, Map<UUID, List<ClaimGeometry.PolygonData>> perWorld) {
         List<MarkerRef> old = this.currentFactionMarkers.remove(factionId);
         if (old != null)
             old.forEach(this::removeMarker);
@@ -313,7 +265,7 @@ public class BlueMapIntegration implements Listener {
             // deterministic hash if the flag is absent or unparseable (for example
             // when it is still the literal "random" placeholder).
             Integer rgb = this.getFactionFlagColor(faction);
-            int resolved = (rgb != null) ? rgb : generateDeterministicColor(factionId);
+            int resolved = (rgb != null) ? rgb : FactionColors.generateDeterministicColor(factionId);
 
             colors = new Color[] {
                     new Color(resolved, fillOpacity),
@@ -326,9 +278,9 @@ public class BlueMapIntegration implements Listener {
         String labelFormat = plugin.getConfig().getString("bluemap.label-format", "Faction: %faction%");
         String label = labelFormat.replace("%faction%", factionName);
 
-        for (Map.Entry<UUID, List<PolygonData>> e : perWorld.entrySet()) {
+        for (Map.Entry<UUID, List<ClaimGeometry.PolygonData>> e : perWorld.entrySet()) {
             UUID worldId = e.getKey();
-            List<PolygonData> polygons = e.getValue();
+            List<ClaimGeometry.PolygonData> polygons = e.getValue();
             if (polygons.isEmpty())
                 continue;
 
@@ -338,7 +290,7 @@ public class BlueMapIntegration implements Listener {
                 continue;
 
             for (int i = 0; i < polygons.size(); ++i) {
-                PolygonData pd = polygons.get(i);
+                ClaimGeometry.PolygonData pd = polygons.get(i);
                 List<Vector2d> outer = new ArrayList<>();
                 for (int k = 0; k < pd.shell.length - 1; ++k) {
                     outer.add(new Vector2d(pd.shell[k].x, pd.shell[k].y));
@@ -380,21 +332,6 @@ public class BlueMapIntegration implements Listener {
         this.currentFactionMarkers.put(factionId, newRefs);
     }
 
-    /**
-     * Generates a deterministic color based on the string input.
-     * Use a hash function to select a color.
-     */
-    private int generateDeterministicColor(String input) {
-        int hash = input.hashCode();
-        // Generate RGB from hash
-        // We want bright/nice colors, maybe HSL? For now standard hash to RGB
-        int r = (hash & 0xFF0000) >> 16;
-        int g = (hash & 0x00FF00) >> 8;
-        int b = (hash & 0x0000FF);
-
-        return (r << 16) | (g << 8) | b;
-    }
-
     private MfFaction findFactionById(String id) {
         for (MfFaction f : this.medievalFactions.getServices().getFactionService().getFactions()) {
             if (f.getId().equals(id))
@@ -420,7 +357,7 @@ public class BlueMapIntegration implements Listener {
                 hex = hex.substring(1);
             if (hex.length() != 6)
                 return null;
-            return Integer.parseInt(hex, 16);
+            return FactionColors.parseColor(hex);
         } catch (Exception ex) {
             plugin.getLogger().warning(
                     "Could not read colour flag for faction " + faction.getName() + ": " + ex.getMessage());
@@ -436,16 +373,6 @@ public class BlueMapIntegration implements Listener {
         MarkerRef(String mapId, String markerId) {
             this.mapId = mapId;
             this.markerId = markerId;
-        }
-    }
-
-    private static class PolygonData {
-        final Coordinate[] shell;
-        final List<Coordinate[]> holes;
-
-        PolygonData(Coordinate[] shell, List<Coordinate[]> holes) {
-            this.shell = shell;
-            this.holes = holes;
         }
     }
 }
