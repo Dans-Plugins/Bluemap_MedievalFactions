@@ -87,19 +87,30 @@ Issues are grouped into [milestones](https://github.com/Dans-Plugins/Bluemap_Med
 
 ## Testing
 
-This project does not currently have an automated test suite — there is no
-`src/test/` directory and no test framework declared in `pom.xml`. `mvn clean test`
-therefore executes zero tests, and a `BUILD SUCCESS` from it is not evidence that
-anything was verified.
+Run the test suite with:
 
-Until a test suite exists, verify changes by building the plugin and running it on a
-Paper server with Medieval Factions and BlueMap installed:
+Linux: `mvn clean test`
+Windows: `mvn.cmd clean test`
+
+Tests live in `src/test/java/com/kilz/mfbluemap/`, run on JUnit 5 via Maven Surefire,
+and are named `<ClassUnderTest>Test.java`. Read the Surefire summary rather than the
+build status — `BUILD SUCCESS` with `Tests run: 0` means nothing was verified. The
+suite needs the Medieval Factions jar like any other Maven goal here; see
+[Build Prerequisite](#build-prerequisite).
+
+The suite covers only what runs without a server: `ClaimGeometry` (merging claimed
+chunks into polygons) and `FactionColors` (parsing and deriving overlay colours).
+`BlueMapIntegration` cannot be instantiated in a test, because its constructor calls
+`Bukkit.getPluginManager().registerEvents(...)`; covering it would need a Bukkit
+mocking framework that this project does not yet depend on. Verify changes to it by
+building the plugin and running it on a Paper server with Medieval Factions and
+BlueMap installed:
 
 Linux: `mvn clean package`
 Windows: `mvn.cmd clean package`
 
-Adding test infrastructure is welcome; see [Build Prerequisite](#build-prerequisite)
-for what is needed to make any Maven goal run at all.
+Pure logic that a new change adds is expected to come with tests. Where that means
+lifting logic out of `BlueMapIntegration` first, that extraction is welcome.
 
 ## Questions
 

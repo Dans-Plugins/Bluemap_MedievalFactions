@@ -40,10 +40,12 @@ bluemap:
 **Default:** `"#FFFFFF"`
 **Description:** Intended as the fill colour for factions that have no entry under `factions:`.
 
-> **Not currently in effect.** The source never reads this key. A faction without a
-> `factions:` override always receives a colour derived from its ID by
-> `generateDeterministicColor`, so changing this value has no visible result. Use a
-> per-faction `factions:` override to control a faction's fill colour.
+> **Not currently in effect.** The source never reads this key, so changing this value
+> has no visible result. A faction without a `factions:` override is coloured from its
+> own colour flag in Medieval Factions, falling back to a colour derived from its ID by
+> `FactionColors.generateDeterministicColor` when that flag is unset or is still the
+> literal `random` placeholder. Use a per-faction `factions:` override to control a
+> faction's fill colour.
 
 **Example:**
 
@@ -75,10 +77,12 @@ default-color:
 **Default:** `"#209cee"`
 **Description:** Intended as the border line colour for factions that have no entry under `factions:`.
 
-> **Not currently in effect.** The source never reads this key. A faction without a
-> `factions:` override always receives a border colour derived from its ID by
-> `generateDeterministicColor`, so changing this value has no visible result. Use a
-> per-faction `factions:` override to control a faction's border colour.
+> **Not currently in effect.** The source never reads this key, so changing this value
+> has no visible result. A faction without a `factions:` override is given a border
+> colour from its own colour flag in Medieval Factions, falling back to a colour derived
+> from its ID by `FactionColors.generateDeterministicColor` when that flag is unset or is
+> still the literal `random` placeholder. Use a per-faction `factions:` override to
+> control a faction's border colour.
 
 **Example:**
 

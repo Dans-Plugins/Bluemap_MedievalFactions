@@ -50,12 +50,21 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/Bluemap_Medi
 
 ### Unit Tests
 
-This project does not currently ship an automated test suite. There is no `src/test/`
-directory and no test framework declared in `pom.xml`, so `mvn clean test` executes
-zero tests — a `BUILD SUCCESS` from it verifies nothing.
+```
+mvn clean test
+```
 
-Changes are currently verified by building the plugin and running it on a Paper server
-with Medieval Factions and BlueMap installed.
+Tests live in `src/test/java/` and run on JUnit 5 via Maven Surefire. Check the
+Surefire summary for the number of tests actually executed — a `BUILD SUCCESS` with
+`Tests run: 0` verifies nothing.
+
+Coverage is limited to the logic that does not need a running server: claim-chunk
+geometry (`ClaimGeometry`) and colour resolution (`FactionColors`). Everything that
+touches the Bukkit or BlueMap APIs is still verified by building the plugin and
+running it on a Paper server with Medieval Factions and BlueMap installed.
+
+Running the tests needs the same Medieval Factions jar as the build — see
+[Build Prerequisite](#build-prerequisite) below.
 
 ## Development
 

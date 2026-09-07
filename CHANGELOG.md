@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+- An automated test suite. JUnit 5 runs under Maven Surefire, and `mvn clean test` now executes tests covering claim-chunk union geometry — including merging, disjoint regions and enclave holes — and colour parsing and fallback derivation.
+
+### Changed
+
+- The claim-merging geometry and the colour parsing and fallback derivation moved out of `BlueMapIntegration` into `ClaimGeometry` and `FactionColors`. Both are free of Bukkit, BlueMap and Medieval Factions types, so they can be tested without a running server; `BlueMapIntegration` itself could not be, because its constructor registers Bukkit event listeners. Behaviour is unchanged.
+- Geometry failures are logged through `Logger.log(Level.SEVERE, ...)` with the throwable attached, rather than `printStackTrace()`, so the stack trace reaches the server log through the plugin's logger.
+
+### Fixed
+
+- `CONFIG.md`, `USER_GUIDE.md` and `config.yml` no longer state that an unconfigured faction is always coloured from a hash of its ID. The faction's own colour flag in Medieval Factions takes precedence; the ID hash is only the fallback.
+- `README.md` and `CONTRIBUTING.md` no longer state that the project has no test suite.
+
 ## [1.0.0] – 2026-09-04
 
 ### Fixed

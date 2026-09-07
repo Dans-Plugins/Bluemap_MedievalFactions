@@ -18,6 +18,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <junit.version>5.10.2</junit.version>
+        <!--
+          Maven 3.6's default Surefire is 2.12.4, which cannot run JUnit 5 tests and
+          would silently report zero. Pinning 3.x is what makes the suite execute.
+        -->
+        <surefire.version>3.2.5</surefire.version>
     </properties>
 
     <repositories>
@@ -72,6 +78,14 @@
             <version>1.20.0</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- JUnit 5, run by Surefire -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -84,6 +98,11 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
