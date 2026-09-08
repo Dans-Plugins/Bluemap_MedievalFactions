@@ -37,6 +37,17 @@ factions:
     lineOpacity: 1.0
 ```
 
+To give every faction without such an override one shared colour instead — a plain
+"claimed land" overlay rather than a per-faction one — set `default-color.mode` to
+`fixed`:
+
+```yaml
+default-color:
+  mode: fixed
+  fill-color: "#AAAAAA"
+  line-color: "#0055FF"
+```
+
 Restart the server for changes to take effect. The plugin registers no commands, so
 there is no in-game way to reload its configuration.
 

@@ -34,23 +34,45 @@ bluemap:
 
 ---
 
-## default-color.fill-color
+## default-color.mode
 
-**Type:** string (hex colour)
-**Default:** `"#FFFFFF"`
-**Description:** Intended as the fill colour for factions that have no entry under `factions:`.
+**Type:** string (`auto` or `fixed`)
+**Default:** `auto`
+**Description:** How a faction that has no entry under `factions:` is coloured.
 
-> **Not currently in effect.** The source never reads this key, so changing this value
-> has no visible result. A faction without a `factions:` override is coloured from its
-> own colour flag in Medieval Factions, falling back to a colour derived from its ID by
-> `FactionColors.generateDeterministicColor` when that flag is unset or is still the
-> literal `random` placeholder. Use a per-faction `factions:` override to control a
-> faction's fill colour.
+| Value   | Behaviour |
+|---------|-----------|
+| `auto`  | Use the faction's own colour flag in Medieval Factions, falling back to a colour derived from its ID by `FactionColors.generateDeterministicColor` when that flag is unset or is still the literal `random` placeholder. Every faction gets a distinct colour. |
+| `fixed` | Use [`default-color.fill-color`](#default-colorfill-color) and [`default-color.line-color`](#default-colorline-color) for every such faction, so all unconfigured territory shares one colour. |
+
+Matching is case-insensitive. Any unrecognised value is treated as `auto`, so a typo
+leaves each faction its own colour rather than flattening the whole map to one.
 
 **Example:**
 
 ```yaml
 default-color:
+  mode: fixed
+```
+
+---
+
+## default-color.fill-color
+
+**Type:** string (hex colour)
+**Default:** `"#FFFFFF"`
+**Description:** The fill colour for factions that have no entry under `factions:`.
+
+> Read **only** when [`default-color.mode`](#default-colormode) is `fixed`. Under the
+> default `auto` mode the colour comes from the faction itself, and this value is
+> ignored. If either this key or `default-color.line-color` is not a valid hex colour,
+> the plugin logs a warning and falls back to `auto` behaviour.
+
+**Example:**
+
+```yaml
+default-color:
+  mode: fixed
   fill-color: "#AAAAAA"
 ```
 
@@ -60,7 +82,7 @@ default-color:
 
 **Type:** double (0.0–1.0)
 **Default:** `0.35`
-**Description:** The opacity of the fill colour for dynamically coloured factions.
+**Description:** The opacity of the fill colour for factions that have no entry under `factions:`. Applied in both `auto` and `fixed` mode.
 
 **Example:**
 
@@ -75,19 +97,18 @@ default-color:
 
 **Type:** string (hex colour)
 **Default:** `"#209cee"`
-**Description:** Intended as the border line colour for factions that have no entry under `factions:`.
+**Description:** The border line colour for factions that have no entry under `factions:`.
 
-> **Not currently in effect.** The source never reads this key, so changing this value
-> has no visible result. A faction without a `factions:` override is given a border
-> colour from its own colour flag in Medieval Factions, falling back to a colour derived
-> from its ID by `FactionColors.generateDeterministicColor` when that flag is unset or is
-> still the literal `random` placeholder. Use a per-faction `factions:` override to
-> control a faction's border colour.
+> Read **only** when [`default-color.mode`](#default-colormode) is `fixed`. Under the
+> default `auto` mode the colour comes from the faction itself, and this value is
+> ignored. If either this key or `default-color.fill-color` is not a valid hex colour,
+> the plugin logs a warning and falls back to `auto` behaviour.
 
 **Example:**
 
 ```yaml
 default-color:
+  mode: fixed
   line-color: "#0055FF"
 ```
 
@@ -97,7 +118,7 @@ default-color:
 
 **Type:** double (0.0–1.0)
 **Default:** `1.0`
-**Description:** The opacity of the border line for dynamically coloured factions.
+**Description:** The opacity of the border line for factions that have no entry under `factions:`. Applied in both `auto` and `fixed` mode.
 
 **Example:**
 
