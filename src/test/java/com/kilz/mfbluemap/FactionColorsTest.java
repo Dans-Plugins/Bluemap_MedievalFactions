@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,6 +66,46 @@ class FactionColorsTest {
                     FactionColors.generateDeterministicColor(factionId));
         }
         assertEquals(legacyDeterministicColor("abc"), FactionColors.generateDeterministicColor("abc"));
+    }
+
+    @Test
+    void fixedModeIsRecognisedRegardlessOfCaseOrSurroundingWhitespace() {
+        assertTrue(FactionColors.isFixedMode("fixed"));
+        assertTrue(FactionColors.isFixedMode("FIXED"));
+        assertTrue(FactionColors.isFixedMode("Fixed"));
+        assertTrue(FactionColors.isFixedMode("  fixed  "));
+    }
+
+    @Test
+    void everyOtherModeValueMeansAuto() {
+        // A typo must leave each faction its own colour rather than flattening the
+        // whole map to the one configured default colour.
+        assertFalse(FactionColors.isFixedMode("auto"));
+        assertFalse(FactionColors.isFixedMode("AUTO"));
+        assertFalse(FactionColors.isFixedMode("fixxed"));
+        assertFalse(FactionColors.isFixedMode(""));
+        assertFalse(FactionColors.isFixedMode("   "));
+        assertFalse(FactionColors.isFixedMode(null));
+    }
+
+    @Test
+    void autoModePrefersTheFactionsOwnColourFlag() {
+        assertEquals(0x209CEE, FactionColors.resolveAutoColor(0x209CEE, "some-faction-id"));
+    }
+
+    @Test
+    void autoModeFallsBackToTheIdHashWhenTheFlagIsAbsent() {
+        String factionId = "3f2a1c44-0000-4000-8000-000000000001";
+
+        assertEquals(FactionColors.generateDeterministicColor(factionId),
+                FactionColors.resolveAutoColor(null, factionId));
+    }
+
+    @Test
+    void autoModeHonoursABlackColourFlagRatherThanTreatingItAsAbsent() {
+        // 0x000000 is falsy-looking but a legitimate colour; an unboxing-order slip
+        // here would silently swap it for the id hash.
+        assertEquals(0x000000, FactionColors.resolveAutoColor(0x000000, "some-faction-id"));
     }
 
     /** The expression that lived in BlueMapIntegration before FactionColors existed. */

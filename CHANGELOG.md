@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `default-color.mode`, which decides how a faction with no `factions:` override is coloured. The default `auto` keeps the current behaviour — the faction's own colour flag in Medieval Factions, falling back to a colour derived from its ID — while `fixed` paints all such factions in `default-color.fill-color` and `default-color.line-color`. Any unrecognised value is treated as `auto`.
 - An automated test suite. JUnit 5 runs under Maven Surefire, and `mvn clean test` now executes tests covering claim-chunk union geometry — including merging, disjoint regions and enclave holes — and colour parsing and fallback derivation.
 
 ### Changed
@@ -17,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- `default-color.fill-color` and `default-color.line-color` now take effect. Both were shipped in `config.yml` and documented, but no code path read either one; they are now read whenever `default-color.mode` is `fixed`. A value that is not a hex colour logs a warning and falls back to per-faction colours rather than leaving the territory undrawn.
 - `CONFIG.md`, `USER_GUIDE.md` and `config.yml` no longer state that an unconfigured faction is always coloured from a hash of its ID. The faction's own colour flag in Medieval Factions takes precedence; the ID hash is only the fallback.
 - `README.md` and `CONTRIBUTING.md` no longer state that the project has no test suite.
 

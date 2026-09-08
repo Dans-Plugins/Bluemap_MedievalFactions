@@ -8,13 +8,18 @@ bluemap:
 
 # Faction Color Configuration
 # Applied to factions with no entry under 'factions:' below.
-# NOTE: only fill-opacity and line-opacity are currently read by the plugin. The
-# fill-color and line-color values are ignored -- a faction without an override is
-# coloured from its own colour flag in Medieval Factions, falling back to a colour
-# derived from its faction ID when that flag is unset. See CONFIG.md.
 default-color:
+  # How such a faction is coloured:
+  #   auto  - use the faction's own colour flag in Medieval Factions, falling back
+  #           to a colour derived from its faction ID when that flag is unset or is
+  #           still the literal "random" placeholder. Each faction is distinct.
+  #   fixed - use the fill-color and line-color below for every such faction.
+  # Any other value is treated as auto.
+  mode: auto
+  # Only used when mode is 'fixed'.
   fill-color: "#FFFFFF"
   fill-opacity: 0.35
+  # Only used when mode is 'fixed'.
   line-color: "#209cee"
   line-opacity: 1.0
 

@@ -31,6 +31,10 @@ public class BlueMapIntegration implements Listener {
     private static final String MARKER_SET_ID = "mf_claims";
     private static final String MARKER_SET_LABEL = "Medieval Factions Claims";
 
+    /** Fallbacks for the fixed default colours; must match src/main/resources/config.yml. */
+    private static final String DEFAULT_FILL_COLOR = "#FFFFFF";
+    private static final String DEFAULT_LINE_COLOR = "#209cee";
+
     private final Plugin plugin;
     private MedievalFactions medievalFactions;
     private BlueMapAPI api;
@@ -251,8 +255,10 @@ public class BlueMapIntegration implements Listener {
 
         // Determine color:
         // 1. Check if configured in 'factions' config override
-        // 2. Otherwise use the faction's own colour flag in MedievalFactions
-        // 3. Otherwise fall back to a deterministic hash of the faction id
+        // 2. Otherwise, under default-color.mode: fixed, use the configured
+        //    default-color.fill-color / line-color
+        // 3. Otherwise use the faction's own colour flag in MedievalFactions
+        // 4. Otherwise fall back to a deterministic hash of the faction id
         Color[] colors = this.factionColors.get(factionName);
 
         if (colors == null) {
@@ -260,16 +266,26 @@ public class BlueMapIntegration implements Listener {
             float fillOpacity = (float) plugin.getConfig().getDouble("default-color.fill-opacity", 0.35);
             float lineOpacity = (float) plugin.getConfig().getDouble("default-color.line-opacity", 1.0);
 
-            // Prefer the faction's own colour flag, so the web map matches the colour
-            // players already see in chat and territory titles. Fall back to a
-            // deterministic hash if the flag is absent or unparseable (for example
-            // when it is still the literal "random" placeholder).
-            Integer rgb = this.getFactionFlagColor(faction);
-            int resolved = (rgb != null) ? rgb : FactionColors.generateDeterministicColor(factionId);
+            String mode = plugin.getConfig().getString("default-color.mode", FactionColors.MODE_AUTO);
+            int[] fixedRGB = FactionColors.isFixedMode(mode) ? this.readFixedDefaultColors() : null;
+
+            int fillRGB;
+            int lineRGB;
+            if (fixedRGB != null) {
+                fillRGB = fixedRGB[0];
+                lineRGB = fixedRGB[1];
+            } else {
+                // Prefer the faction's own colour flag, so the web map matches the colour
+                // players already see in chat and territory titles. Fall back to a
+                // deterministic hash if the flag is absent or unparseable (for example
+                // when it is still the literal "random" placeholder).
+                fillRGB = FactionColors.resolveAutoColor(this.getFactionFlagColor(faction), factionId);
+                lineRGB = fillRGB;
+            }
 
             colors = new Color[] {
-                    new Color(resolved, fillOpacity),
-                    new Color(resolved, lineOpacity)
+                    new Color(fillRGB, fillOpacity),
+                    new Color(lineRGB, lineOpacity)
             };
         }
 
@@ -330,6 +346,29 @@ public class BlueMapIntegration implements Listener {
             }
         }
         this.currentFactionMarkers.put(factionId, newRefs);
+    }
+
+    /**
+     * Reads the fixed default fill and line colours as {@code {fill, line}} packed RGB.
+     *
+     * Returns null when either value is not a hex colour, so the caller falls back to
+     * per-faction colours: a typo in one key should not leave every unconfigured
+     * faction undrawn.
+     */
+    private int[] readFixedDefaultColors() {
+        String fillHex = plugin.getConfig().getString("default-color.fill-color", DEFAULT_FILL_COLOR);
+        String lineHex = plugin.getConfig().getString("default-color.line-color", DEFAULT_LINE_COLOR);
+        try {
+            return new int[] {
+                    FactionColors.parseColor(fillHex),
+                    FactionColors.parseColor(lineHex)
+            };
+        } catch (RuntimeException ex) {
+            plugin.getLogger().warning("default-color.mode is '" + FactionColors.MODE_FIXED
+                    + "' but default-color.fill-color/line-color is not a hex colour ("
+                    + ex.getMessage() + "); falling back to per-faction colours.");
+            return null;
+        }
     }
 
     private MfFaction findFactionById(String id) {
