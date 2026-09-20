@@ -89,6 +89,27 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!--
+              plugin.yml takes its version from this file, so a release bump cannot
+              leave the server reporting a stale version. Only plugin.yml is filtered:
+              config.yml is copied verbatim, because it is shipped to servers as-is.
+            -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
