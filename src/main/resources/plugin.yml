@@ -1,5 +1,5 @@
 name: MF_Bluemap
-version: 1.0
+version: ${project.version}
 main: com.kilz.mfbluemap.MF_Bluemap
 api-version: 1.21
 depend: [MedievalFactions, BlueMap]
