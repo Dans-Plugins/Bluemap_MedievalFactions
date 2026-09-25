@@ -147,6 +147,8 @@ A sub-key left out of an entry takes the default above, not the value under
 
 Write colours as six hex digits, with or without a leading `#`. The three-digit
 shorthand is not expanded: `#F00` is read as `0x000F00`, a near-black green, not red.
+Quote the value — unquoted, YAML treats `#FF0000` as a comment, so the key is read as
+absent and takes its default.
 
 If `fillColor` or `lineColor` is not hexadecimal, the plugin logs
 `Error loading color for <faction>: ...` and ignores the whole entry, so that faction
