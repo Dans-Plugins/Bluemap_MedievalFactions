@@ -133,14 +133,26 @@ default-color:
 
 **Type:** mapping of faction name → colour overrides
 **Default:** *(empty)*
-**Description:** Optional per-faction colour overrides. The key is the faction's display name exactly as it appears in Medieval Factions. Each entry supports the following sub-keys:
+**Description:** Optional per-faction colour overrides. The key is the faction's display name exactly as it appears in Medieval Factions; matching is case-sensitive, so `myfaction` does not match a faction named `MyFaction`. An override takes precedence over [`default-color.mode`](#default-colormode) in either mode. Each entry supports the following sub-keys:
 
-| Key           | Type   | Description                   |
-|---------------|--------|-------------------------------|
-| `fillColor`   | string | Hex fill colour (e.g. `#FF0000`) |
-| `fillOpacity` | double | Fill opacity (0.0–1.0)         |
-| `lineColor`   | string | Hex border colour             |
-| `lineOpacity` | double | Border opacity (0.0–1.0)      |
+| Key           | Type   | Default   | Description                   |
+|---------------|--------|-----------|-------------------------------|
+| `fillColor`   | string | `#FFFFFF` | Hex fill colour (e.g. `#FF0000`) |
+| `fillOpacity` | double | `0.35`    | Fill opacity (0.0–1.0)         |
+| `lineColor`   | string | `#888888` | Hex border colour             |
+| `lineOpacity` | double | `1.0`     | Border opacity (0.0–1.0)      |
+
+A sub-key left out of an entry takes the default above, not the value under
+`default-color` — an entry that sets only `fillColor` gets a grey `#888888` border.
+
+Write colours as six hex digits, with or without a leading `#`. The three-digit
+shorthand is not expanded: `#F00` is read as `0x000F00`, a near-black green, not red.
+Quote the value — unquoted, YAML treats `#FF0000` as a comment, so the key is read as
+absent and takes its default.
+
+If `fillColor` or `lineColor` is not hexadecimal, the plugin logs
+`Error loading color for <faction>: ...` and ignores the whole entry, so that faction
+is coloured as though it had no override.
 
 **Example:**
 
