@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `default-color.fill-color` and `default-color.line-color` now take effect. Both were shipped in `config.yml` and documented, but no code path read either one; they are now read whenever `default-color.mode` is `fixed`. A value that is not a hex colour logs a warning and falls back to per-faction colours rather than leaving the territory undrawn.
 - `CONFIG.md`, `USER_GUIDE.md` and `config.yml` no longer state that an unconfigured faction is always coloured from a hash of its ID. The faction's own colour flag in Medieval Factions takes precedence; the ID hash is only the fallback.
 - `README.md` and `CONTRIBUTING.md` no longer state that the project has no test suite.
+- `CONFIG.md` now documents the `factions:` override sub-keys' defaults, that faction names match case-sensitively, that three-digit hex shorthand is not expanded, and that an entry with a non-hex colour is ignored with a warning.
 - `plugin.yml` now takes its `version` from `pom.xml` through Maven resource filtering, so the version a server reports for the plugin always matches the released artifact. It was hard-coded to `1.0` and was not bumped alongside the `1.0.0` release. Only `plugin.yml` is filtered; the bundled `config.yml` is still copied verbatim.
 
 ### Removed
