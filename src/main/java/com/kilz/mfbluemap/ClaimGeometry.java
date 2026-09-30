@@ -39,9 +39,10 @@ final class ClaimGeometry {
     /**
      * Unions the chunk squares into the smallest set of polygons that covers them.
      *
-     * Chunks that touch along an edge or a corner become a single polygon; a region
-     * fully enclosed by claims but not itself claimed becomes a hole on the
-     * enclosing polygon. Returns an empty list for an empty input.
+     * Chunks that share an edge become a single polygon. Chunks that touch only at a
+     * corner stay separate polygons, because JTS does not merge polygons that share a
+     * single vertex. A region fully enclosed by claims but not itself claimed becomes
+     * a hole on the enclosing polygon. Returns an empty list for an empty input.
      */
     static List<PolygonData> unionChunks(List<ChunkPos> chunks) {
         if (chunks.isEmpty()) {
