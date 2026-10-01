@@ -16,7 +16,7 @@ After placing the jar in your `plugins/` folder and restarting the server:
 1. Open `plugins/MF_Bluemap/config.yml` to review the default settings.
 2. Visit your BlueMap web interface (default: `http://<your-server-ip>:8100`).
 3. You should see a **Medieval Factions Claims** marker layer available in the layer controls.
-4. Claimed chunks will appear as coloured polygons on the map. Contiguous chunks belonging to the same faction are automatically merged into a single shape.
+4. Claimed chunks will appear as coloured polygons on the map. Chunks belonging to the same faction that share an edge are automatically merged into a single shape; chunks that touch only at a corner are drawn as separate shapes meeting at a point.
 
 ## Common Scenarios
 
