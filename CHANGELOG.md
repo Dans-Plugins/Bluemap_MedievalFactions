@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `README.md` and `CONTRIBUTING.md` no longer state that the project has no test suite.
 - `CONFIG.md` now documents the `factions:` override sub-keys' defaults, that faction names match case-sensitively, that three-digit hex shorthand is not expanded, and that an entry with a non-hex colour is ignored with a warning.
 - The `ClaimGeometry.unionChunks` Javadoc no longer states that chunks touching only at a corner merge into one polygon, and `USER_GUIDE.md` now says so explicitly. Such chunks stay separate shapes, as the test suite confirms.
+- A faction whose Medieval Factions colour flag is still the literal `random` placeholder no longer logs a "Could not read colour flag" warning each time its claims are redrawn. The value was treated as an error because it is six characters long; it now falls back to the ID-derived colour silently, as an unset flag does. A flag value with a leading `+` or `-` sign is also no longer accepted as a colour.
 - `plugin.yml` now takes its `version` from `pom.xml` through Maven resource filtering, so the version a server reports for the plugin always matches the released artifact. It was hard-coded to `1.0` and was not bumped alongside the `1.0.0` release. Only `plugin.yml` is filtered; the bundled `config.yml` is still copied verbatim.
 
 ### Removed

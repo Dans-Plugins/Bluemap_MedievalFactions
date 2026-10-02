@@ -41,6 +41,25 @@ final class FactionColors {
     }
 
     /**
+     * Parses a Medieval Factions colour flag value into packed RGB.
+     *
+     * Accepts exactly six hex digits, with or without a leading {@code #} and
+     * surrounding whitespace. Returns null for anything else — an unset flag, the
+     * literal {@code random} placeholder, shorthand like {@code #FFF} — rather than
+     * throwing, because a faction whose flag was never set is routine, not an error.
+     */
+    static Integer parseFlagColor(String flag) {
+        if (flag == null)
+            return null;
+        String hex = flag.trim();
+        if (hex.startsWith("#"))
+            hex = hex.substring(1);
+        if (!hex.matches("[0-9A-Fa-f]{6}"))
+            return null;
+        return Integer.parseInt(hex, 16);
+    }
+
+    /**
      * Derives a stable colour from a faction id.
      *
      * Used only when a faction has neither a {@code factions:} override in

@@ -388,15 +388,7 @@ public class BlueMapIntegration implements Listener {
         if (faction == null)
             return null;
         try {
-            String hex = faction.getFlags().get(this.medievalFactions.getFlags().getColor());
-            if (hex == null)
-                return null;
-            hex = hex.trim();
-            if (hex.startsWith("#"))
-                hex = hex.substring(1);
-            if (hex.length() != 6)
-                return null;
-            return FactionColors.parseColor(hex);
+            return FactionColors.parseFlagColor(faction.getFlags().get(this.medievalFactions.getFlags().getColor()));
         } catch (Exception ex) {
             plugin.getLogger().warning(
                     "Could not read colour flag for faction " + faction.getName() + ": " + ex.getMessage());
