@@ -7,6 +7,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -106,6 +107,36 @@ class FactionColorsTest {
         // 0x000000 is falsy-looking but a legitimate colour; an unboxing-order slip
         // here would silently swap it for the id hash.
         assertEquals(0x000000, FactionColors.resolveAutoColor(0x000000, "some-faction-id"));
+    }
+
+    @Test
+    void flagColoursParseWithOrWithoutTheHashAndSurroundingWhitespace() {
+        assertEquals(0x209CEE, FactionColors.parseFlagColor("#209cee"));
+        assertEquals(0x209CEE, FactionColors.parseFlagColor("209CEE"));
+        assertEquals(0x209CEE, FactionColors.parseFlagColor("  #209cee \n"));
+        assertEquals(0x000000, FactionColors.parseFlagColor("#000000"));
+    }
+
+    @Test
+    void theRandomPlaceholderFlagIsAbsentRatherThanAnError() {
+        // "random" is six characters, so a length check alone lets it through to
+        // parseColor, which throws — and the caller logged that as a warning on
+        // every recompute of every faction that never set its colour.
+        assertNull(FactionColors.parseFlagColor("random"));
+        assertNull(FactionColors.parseFlagColor("#random"));
+    }
+
+    @Test
+    void flagValuesThatAreNotSixHexDigitsAreAbsent() {
+        assertNull(FactionColors.parseFlagColor(null));
+        assertNull(FactionColors.parseFlagColor(""));
+        assertNull(FactionColors.parseFlagColor("#"));
+        assertNull(FactionColors.parseFlagColor("#FFF"));
+        assertNull(FactionColors.parseFlagColor("#FFFFFFF"));
+        assertNull(FactionColors.parseFlagColor("#GGGGGG"));
+        // Integer.parseInt accepts a sign, which would yield a negative colour.
+        assertNull(FactionColors.parseFlagColor("-FFFFF"));
+        assertNull(FactionColors.parseFlagColor("+FFFFF"));
     }
 
     /** The expression that lived in BlueMapIntegration before FactionColors existed. */
