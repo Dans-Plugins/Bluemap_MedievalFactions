@@ -19,6 +19,10 @@ This plugin requires the following plugins to be installed and enabled before it
 - [Medieval Factions](https://github.com/Dans-Plugins/Medieval-Factions) – the factions system whose claims are rendered.
 - [BlueMap](https://www.spigotmc.org/resources/bluemap.83557/) – the web-map renderer that displays the overlays.
 
+**Compatibility:** Bluemap_MedievalFactions v1.0 was enabled against [Medieval Factions](https://github.com/Dans-Plugins/Medieval-Factions) 7.0.0 by the [dependents gate](https://github.com/Dans-Plugins/release-gates/actions/runs/36957984824) before Medieval Factions 7.0.0 was published.
+
+**Other Medieval Factions expansions:** [Currencies](https://github.com/Dans-Plugins/Currencies) (faction currencies), [Fiefs](https://github.com/Dans-Plugins/Fiefs) (sub-factions), [Democracy](https://github.com/Dans-Plugins/Democracy) (elections). All of them are listed in the [Medieval Factions README](https://github.com/Dans-Plugins/Medieval-Factions#expansions).
+
 ## Usage
 
 ### Documentation
