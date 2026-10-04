@@ -184,23 +184,34 @@ public class BlueMapIntegration implements Listener {
     }
 
     private void scheduleFactionRecompute(String factionId) {
-        // We use the full service to get claims
-        List<MfClaimedChunk> snapshot = new ArrayList<>(
-                this.medievalFactions.getServices().getClaimService().getClaimsByFactionId(factionId));
         ScheduledFuture<?> previous = this.pendingTasks.get(factionId);
         if (previous != null && !previous.isDone()) {
             previous.cancel(false);
         }
 
+        // The claims are read when the debounce fires, not when the event fires.
+        // Medieval Factions fires FactionClaimEvent and FactionUnclaimEvent before
+        // it saves the change, so a snapshot taken in the handler is always one
+        // claim behind. The read is done on the main thread, the geometry on the
+        // executor, and the markers are applied back on the main thread.
         ScheduledFuture<?> future = this.scheduledExecutor.schedule(() -> {
             this.pendingTasks.remove(factionId);
-            try {
-                Map<UUID, List<ClaimGeometry.PolygonData>> perWorld = this.computeUnionPerWorld(snapshot);
-                Bukkit.getScheduler().runTask(plugin, () -> this.applyFactionMarkers(factionId, perWorld));
-            } catch (Throwable t) {
-                plugin.getLogger().log(Level.SEVERE,
-                        "Error processing geometry for faction " + factionId, t);
-            }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (this.scheduledExecutor.isShutdown()) {
+                    return; // disabled while this hop was queued
+                }
+                List<MfClaimedChunk> snapshot = new ArrayList<>(
+                        this.medievalFactions.getServices().getClaimService().getClaimsByFactionId(factionId));
+                this.scheduledExecutor.execute(() -> {
+                    try {
+                        Map<UUID, List<ClaimGeometry.PolygonData>> perWorld = this.computeUnionPerWorld(snapshot);
+                        Bukkit.getScheduler().runTask(plugin, () -> this.applyFactionMarkers(factionId, perWorld));
+                    } catch (Throwable t) {
+                        plugin.getLogger().log(Level.SEVERE,
+                                "Error processing geometry for faction " + factionId, t);
+                    }
+                });
+            });
         }, DEBOUNCE_MS, TimeUnit.MILLISECONDS);
         this.pendingTasks.put(factionId, future);
     }
