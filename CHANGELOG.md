@@ -18,6 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- A disbanded faction's territory is removed from the map. Disbanding does not fire `FactionUnclaimEvent`, so its markers stayed until the next server restart; the plugin now also listens for `FactionDisbandEvent`.
+
 - The map no longer lags one claim behind. A faction's claims were read when Medieval Factions fired `FactionClaimEvent` or `FactionUnclaimEvent`, which is before Medieval Factions saves the change, so the newest claim (or unclaim) only appeared after the next one or a `bluemap reload`. The claims are now read when the 1.5-second debounce fires.
 
 - `default-color.fill-color` and `default-color.line-color` now take effect. Both were shipped in `config.yml` and documented, but no code path read either one; they are now read whenever `default-color.mode` is `fixed`. A value that is not a hex colour logs a warning and falls back to per-faction colours rather than leaving the territory undrawn.

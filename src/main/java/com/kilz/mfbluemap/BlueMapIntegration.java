@@ -4,6 +4,7 @@ import com.dansplugins.factionsystem.MedievalFactions;
 import com.dansplugins.factionsystem.claim.MfClaimService;
 import com.dansplugins.factionsystem.claim.MfClaimedChunk;
 import com.dansplugins.factionsystem.event.faction.FactionClaimEvent;
+import com.dansplugins.factionsystem.event.faction.FactionDisbandEvent;
 import com.dansplugins.factionsystem.event.faction.FactionUnclaimEvent;
 import com.dansplugins.factionsystem.faction.MfFaction;
 import com.flowpowered.math.vector.Vector2d;
@@ -181,6 +182,17 @@ public class BlueMapIntegration implements Listener {
     @EventHandler
     public void onFactionUnclaim(FactionUnclaimEvent event) {
         this.scheduleFactionRecompute(event.getClaim().getFactionId());
+    }
+
+    /**
+     * Disbanding removes a faction's claims without firing FactionUnclaimEvent, so
+     * without this the territory stayed on the map until the next restart. The
+     * recompute runs after the debounce, by which time the faction has no claims,
+     * so its markers are removed and none are added.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void onFactionDisband(FactionDisbandEvent event) {
+        this.scheduleFactionRecompute(event.getFactionId());
     }
 
     private void scheduleFactionRecompute(String factionId) {
