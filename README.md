@@ -4,6 +4,11 @@
 
 Bluemap_MedievalFactions is a Minecraft plugin that integrates [Medieval Factions](https://github.com/Dans-Plugins/Medieval-Factions) with [BlueMap](https://bluemap.bluecolored.de/), rendering faction land claims as coloured shape overlays on your BlueMap web map. Claimed chunks are merged into contiguous polygons per faction, updated automatically whenever a claim or unclaim event fires.
 
+## Supported Minecraft Versions
+This plugin is supported on the Minecraft versions listed in [`minecraft-versions.json`](minecraft-versions.json): currently **26.2** and **26.3** (Spigot and its forks). Every stable release is booted on a real server of each of these versions, beside the current stable releases of Medieval Factions and BlueMap, before it is published, and every build checks that the plugin only uses Bukkit API that exists on all of them.
+
+Earlier versions are not listed because of BlueMap, not this plugin: current BlueMap releases are built for Java 25, which only the 26.x servers run, so a 1.21.x server cannot load the BlueMap this plugin is verified against. The plugin itself targets Java 17 and `api-version: 1.21`, and its Bukkit API use also resolves on 1.21.11, so it is expected to work there beside an older BlueMap release that server can run, but that combination is not tested. To support another version, add it to the file: both checks pick it up.
+
 ## Installation
 
 ### First Time Installation
