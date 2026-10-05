@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- A rolling `dev` prerelease of `master`, rebuilt on every merge by `dev-release.yml`, which Dan's Plugin Manager installs with `/dpm get bluemapmedievalfactions --experimental`. Stable releases are now made from it after release checks.
+- `minecraft-versions.json`, declaring 26.2 and 26.3 as the supported Minecraft versions; every build checks the plugin's Bukkit API use against each of them.
 - `default-color.mode`, which decides how a faction with no `factions:` override is coloured. The default `auto` keeps the current behaviour — the faction's own colour flag in Medieval Factions, falling back to a colour derived from its ID — while `fixed` paints all such factions in `default-color.fill-color` and `default-color.line-color`. Any unrecognised value is treated as `auto`.
 - An automated test suite. JUnit 5 runs under Maven Surefire, and `mvn clean test` now executes tests covering claim-chunk union geometry — including merging, disjoint regions and enclave holes — and colour parsing and fallback derivation.
 
