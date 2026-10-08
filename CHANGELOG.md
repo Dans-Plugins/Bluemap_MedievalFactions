@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.0] – 2026-10-05
+
 ### Added
 
 - A rolling `dev` prerelease of `master`, rebuilt on every merge by `dev-release.yml`, which Dan's Plugin Manager installs with `/dpm get bluemapmedievalfactions --experimental`. Stable releases are now made from it after release checks.
