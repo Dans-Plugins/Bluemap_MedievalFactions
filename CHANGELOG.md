@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `README.md`, `USER_GUIDE.md` and `COMMANDS.md` no longer describe the map as updating in real time on claim and unclaim only. They now mention disbanding, the 1.5-second debounce, the two-factions-per-second startup sync, and that a faction rename or colour-flag change only shows at that faction's next redraw.
+
 ## [1.1.0] – 2026-10-05
 
 ### Added
