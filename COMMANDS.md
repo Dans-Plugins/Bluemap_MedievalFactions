@@ -2,7 +2,7 @@
 
 Bluemap_MedievalFactions is a background integration plugin. It does not register any player-facing or admin commands.
 
-All functionality — syncing faction claims to the BlueMap overlay, updating markers on claim/unclaim events, and applying colour overrides — operates automatically without any commands.
+All functionality — syncing faction claims to the BlueMap overlay, updating markers on claim, unclaim and disband events, and applying colour overrides — operates automatically without any commands.
 
 ## Configuration
 
