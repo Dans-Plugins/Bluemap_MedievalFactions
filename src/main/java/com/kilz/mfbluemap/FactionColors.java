@@ -24,6 +24,12 @@ final class FactionColors {
      */
     static final String MODE_FIXED = "fixed";
 
+    /** Fill colour of a {@code factions:} entry that leaves out {@code fillColor}. */
+    static final String OVERRIDE_DEFAULT_FILL_COLOR = "#FFFFFF";
+
+    /** Border colour of a {@code factions:} entry that leaves out {@code lineColor}. */
+    static final String OVERRIDE_DEFAULT_LINE_COLOR = "#888888";
+
     private FactionColors() {
     }
 
@@ -38,6 +44,24 @@ final class FactionColors {
             hex = hex.substring(1);
         }
         return Integer.parseInt(hex, 16);
+    }
+
+    /**
+     * Parses the {@code fillColor} and {@code lineColor} of a {@code factions:} entry
+     * into {@code {fill, line}} packed RGB.
+     *
+     * A null value means the sub-key is absent, and takes
+     * {@link #OVERRIDE_DEFAULT_FILL_COLOR} or {@link #OVERRIDE_DEFAULT_LINE_COLOR} —
+     * not the {@code default-color} values.
+     *
+     * @throws NumberFormatException if either value is not hexadecimal; the caller
+     *                               then ignores the whole entry
+     */
+    static int[] parseOverrideColors(String fillHex, String lineHex) {
+        return new int[] {
+                parseColor(fillHex != null ? fillHex : OVERRIDE_DEFAULT_FILL_COLOR),
+                parseColor(lineHex != null ? lineHex : OVERRIDE_DEFAULT_LINE_COLOR)
+        };
     }
 
     /**
