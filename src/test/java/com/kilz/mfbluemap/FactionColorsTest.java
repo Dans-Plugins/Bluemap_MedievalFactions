@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -137,6 +138,41 @@ class FactionColorsTest {
         // Integer.parseInt accepts a sign, which would yield a negative colour.
         assertNull(FactionColors.parseFlagColor("-FFFFF"));
         assertNull(FactionColors.parseFlagColor("+FFFFF"));
+    }
+
+    @Test
+    void overrideColoursParseBothValues() {
+        assertArrayEquals(new int[] { 0xFF0000, 0x007700 },
+                FactionColors.parseOverrideColors("#FF0000", "007700"));
+    }
+
+    @Test
+    void anOverrideSubKeyLeftOutTakesItsOwnDefaultRatherThanDefaultColor() {
+        // CONFIG.md: an entry that sets only fillColor gets a grey #888888 border,
+        // not default-color.line-color.
+        assertArrayEquals(new int[] { 0xFF0000, 0x888888 },
+                FactionColors.parseOverrideColors("#FF0000", null));
+        assertArrayEquals(new int[] { 0xFFFFFF, 0x007700 },
+                FactionColors.parseOverrideColors(null, "#007700"));
+        assertArrayEquals(new int[] { 0xFFFFFF, 0x888888 },
+                FactionColors.parseOverrideColors(null, null));
+    }
+
+    @Test
+    void overrideShorthandIsNotExpanded() {
+        // CONFIG.md: #F00 is read as 0x000F00, a near-black green, not red.
+        assertArrayEquals(new int[] { 0x000F00, 0x000F00 },
+                FactionColors.parseOverrideColors("#F00", "F00"));
+    }
+
+    @Test
+    void oneNonHexOverrideColourRejectsTheWholeEntry() {
+        // The caller catches this and ignores the entry, so the faction is coloured
+        // as though it had no override — even when the other colour was valid.
+        assertThrows(NumberFormatException.class,
+                () -> FactionColors.parseOverrideColors("#FF0000", "grey"));
+        assertThrows(NumberFormatException.class,
+                () -> FactionColors.parseOverrideColors("red", "#888888"));
     }
 
     /** The expression that lived in BlueMapIntegration before FactionColors existed. */

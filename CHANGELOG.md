@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- The parsing of `factions:` override colours moved out of `BlueMapIntegration` into `FactionColors`, so the test suite now covers it: the `#FFFFFF` and `#888888` defaults for a left-out `fillColor` or `lineColor`, the unexpanded three-digit shorthand, and that one non-hex colour rejects the whole entry. Behaviour is unchanged.
+
 ### Fixed
 
 - `README.md`, `USER_GUIDE.md` and `COMMANDS.md` no longer describe the map as updating in real time on claim and unclaim only. They now mention disbanding, the 1.5-second debounce, the two-factions-per-second startup sync, and that a faction rename or colour-flag change only shows at that faction's next redraw.

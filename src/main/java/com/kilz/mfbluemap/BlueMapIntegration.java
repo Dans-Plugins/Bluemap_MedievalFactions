@@ -130,19 +130,18 @@ public class BlueMapIntegration implements Listener {
         if (plugin.getConfig().isConfigurationSection("factions")) {
             for (String factionName : plugin.getConfig().getConfigurationSection("factions").getKeys(false)) {
                 try {
-                    String fillHex = plugin.getConfig().getString("factions." + factionName + ".fillColor", "#FFFFFF");
+                    String fillHex = plugin.getConfig().getString("factions." + factionName + ".fillColor");
                     float fillOpacity = (float) plugin.getConfig().getDouble("factions." + factionName + ".fillOpacity",
                             0.35);
-                    String lineHex = plugin.getConfig().getString("factions." + factionName + ".lineColor", "#888888");
+                    String lineHex = plugin.getConfig().getString("factions." + factionName + ".lineColor");
                     float lineOpacity = (float) plugin.getConfig().getDouble("factions." + factionName + ".lineOpacity",
                             1.0);
 
-                    int fillRGB = FactionColors.parseColor(fillHex);
-                    int lineRGB = FactionColors.parseColor(lineHex);
+                    int[] rgb = FactionColors.parseOverrideColors(fillHex, lineHex);
 
                     this.factionColors.put(factionName, new Color[] {
-                            new Color(fillRGB, fillOpacity),
-                            new Color(lineRGB, lineOpacity)
+                            new Color(rgb[0], fillOpacity),
+                            new Color(rgb[1], lineOpacity)
                     });
                 } catch (Exception ex) {
                     plugin.getLogger().warning("Error loading color for " + factionName + ": " + ex.getMessage());
