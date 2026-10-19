@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.1] – 2026-10-17
+
 ### Changed
 
 - The parsing of `factions:` override colours moved out of `BlueMapIntegration` into `FactionColors`, so the test suite now covers it: the `#FFFFFF` and `#888888` defaults for a left-out `fillColor` or `lineColor`, the unexpanded three-digit shorthand, and that one non-hex colour rejects the whole entry. Behaviour is unchanged.
