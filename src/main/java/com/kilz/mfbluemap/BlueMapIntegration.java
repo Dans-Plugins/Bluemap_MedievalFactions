@@ -205,9 +205,16 @@ public class BlueMapIntegration implements Listener {
         // it saves the change, so a snapshot taken in the handler is always one
         // claim behind. The read is done on the main thread, the geometry on the
         // executor, and the markers are applied back on the main thread.
+        //
+        // The entry is removed only if it is still this task's own. A newer event
+        // can replace it while this task is already running, too late to be
+        // cancelled; removing by key alone would drop the newer task's entry, so
+        // the next event could not cancel it and the debounce would run twice.
+        // Every caller is on the main thread, so the removal happens there too.
+        final ScheduledFuture<?>[] self = new ScheduledFuture<?>[1];
         ScheduledFuture<?> future = this.scheduledExecutor.schedule(() -> {
-            this.pendingTasks.remove(factionId);
             Bukkit.getScheduler().runTask(plugin, () -> {
+                this.pendingTasks.remove(factionId, self[0]);
                 if (this.scheduledExecutor.isShutdown()) {
                     return; // disabled while this hop was queued
                 }
@@ -224,6 +231,7 @@ public class BlueMapIntegration implements Listener {
                 });
             });
         }, DEBOUNCE_MS, TimeUnit.MILLISECONDS);
+        self[0] = future;
         this.pendingTasks.put(factionId, future);
     }
 
