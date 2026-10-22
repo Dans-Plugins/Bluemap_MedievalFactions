@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.2] – 2026-10-21
+
 ### Fixed
 
 - A claim, unclaim or disband that arrived while the same faction's redraw was just starting could escape the 1.5-second debounce: the starting redraw removed the newer one from the pending list, so the event after it could no longer cancel it and the faction was redrawn twice. A redraw now removes only its own pending entry.
