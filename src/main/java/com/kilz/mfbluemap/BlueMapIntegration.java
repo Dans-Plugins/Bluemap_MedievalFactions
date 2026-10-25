@@ -322,7 +322,8 @@ public class BlueMapIntegration implements Listener {
         // Configurable values
         float mapY = (float) plugin.getConfig().getDouble("bluemap.y-level", 70.0);
         String labelFormat = plugin.getConfig().getString("bluemap.label-format", "Faction: %faction%");
-        String label = labelFormat.replace("%faction%", factionName);
+        String label = MarkerText.label(labelFormat, factionName);
+        String detail = MarkerText.detail(labelFormat, factionName);
 
         for (Map.Entry<UUID, List<ClaimGeometry.PolygonData>> e : perWorld.entrySet()) {
             UUID worldId = e.getKey();
@@ -354,6 +355,7 @@ public class BlueMapIntegration implements Listener {
 
                 ShapeMarker.Builder b = ShapeMarker.builder()
                         .label(label)
+                        .detail(detail)
                         .shape(outerShape, mapY)
                         .fillColor(colors[0])
                         .lineColor(colors[1])

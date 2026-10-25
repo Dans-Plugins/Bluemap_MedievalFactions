@@ -23,7 +23,7 @@ bluemap:
 
 **Type:** string
 **Default:** `"Faction: %faction%"`
-**Description:** The text label displayed when a user hovers over or clicks a claim shape on the map. Use `%faction%` as a placeholder; it is replaced with the faction's display name at runtime.
+**Description:** The text label displayed when a user hovers over or clicks a claim shape on the map. Use `%faction%` as a placeholder; it is replaced with the faction's display name at runtime. HTML tags in the format are shown as-is in BlueMap's marker list and rendered in the click popup; the faction name is always shown as plain text in both, so a player cannot inject HTML into the map by naming a faction.
 
 **Example:**
 
