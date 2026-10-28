@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.3] – 2026-10-27
+
 ### Fixed
 
 - A faction name containing HTML was inserted unescaped into the popup shown when a claim is clicked, because BlueMap renders a marker's popup text as HTML. The faction name is now escaped there; HTML written into `bluemap.label-format` itself still renders.
