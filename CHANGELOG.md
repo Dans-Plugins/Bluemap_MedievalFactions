@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- The setup that runs when BlueMap starts, and again after every `/bluemap reload`, ran on BlueMap's own loading thread rather than the server thread. It reloaded the config, read Medieval Factions and replaced the colour overrides while the server thread could be drawing a faction's markers with them. It now runs on the server thread.
+
 ## [1.1.3] – 2026-10-27
 
 ### Fixed

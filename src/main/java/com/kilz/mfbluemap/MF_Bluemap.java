@@ -24,10 +24,17 @@ public class MF_Bluemap extends JavaPlugin {
         // Initialize Integration
         this.blueMapIntegration = new BlueMapIntegration(this);
 
-        // Hook into BlueMap
+        // Hook into BlueMap. BlueMap calls this listener on its own loading thread,
+        // not the server thread, and again after every BlueMap reload. enable()
+        // reloads the config and reads Medieval Factions, and it replaces state the
+        // main thread reads while drawing markers, so it is handed to the main thread.
         BlueMapAPI.onEnable(api -> {
-            getLogger().info("BlueMap API enabled. Hooking MedievalFactions...");
-            blueMapIntegration.enable(api, medievalFactions);
+            if (!isEnabled())
+                return;
+            Bukkit.getScheduler().runTask(this, () -> {
+                getLogger().info("BlueMap API enabled. Hooking MedievalFactions...");
+                blueMapIntegration.enable(api, medievalFactions);
+            });
         });
 
         // Save default config
