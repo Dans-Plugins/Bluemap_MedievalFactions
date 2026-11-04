@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.5] – 2026-10-31
+
 ### Fixed
 
 - Disabling the plugin left its BlueMap start-up listener registered with BlueMap. After the plugin was disabled or reloaded by a plugin manager while BlueMap stayed loaded, the old copy of the plugin stayed in memory, and every later `/bluemap reload` still called its listener. The listener is now removed when the plugin is disabled.
