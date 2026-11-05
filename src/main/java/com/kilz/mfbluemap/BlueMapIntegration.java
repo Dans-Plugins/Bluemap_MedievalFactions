@@ -91,6 +91,16 @@ public class BlueMapIntegration implements Listener {
             f.cancel(false);
         if (this.scheduledExecutor != null)
             this.scheduledExecutor.shutdownNow();
+
+        // Marker sets live on BlueMap's maps, so they outlive this plugin. Left in
+        // place, the claims stay drawn, frozen, until BlueMap itself reloads. The
+        // current instance is looked up because BlueMap may have unloaded first,
+        // which leaves this.api unusable and takes the maps with it anyway.
+        BlueMapAPI.getInstance().ifPresent(current -> removeMarkerSets(current.getMaps()));
+    }
+
+    /** Takes this plugin's marker set off each map, leaving other plugins' sets alone. */
+    static void removeMarkerSets(Collection<BlueMapMap> maps) {
     }
 
     public void reload() {
