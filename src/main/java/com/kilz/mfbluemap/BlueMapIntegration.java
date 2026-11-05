@@ -101,6 +101,8 @@ public class BlueMapIntegration implements Listener {
 
     /** Takes this plugin's marker set off each map, leaving other plugins' sets alone. */
     static void removeMarkerSets(Collection<BlueMapMap> maps) {
+        for (BlueMapMap map : maps)
+            map.getMarkerSets().remove(MARKER_SET_ID);
     }
 
     public void reload() {
