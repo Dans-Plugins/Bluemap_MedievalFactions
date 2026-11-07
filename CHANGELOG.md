@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.1.6] – 2026-11-06
+
 ### Fixed
 
 - Disabling the plugin while BlueMap kept running left the claims drawn on the web map, where they stayed frozen until the next `/bluemap reload` or restart. The plugin now removes its `Medieval Factions Claims` marker set from every map when it is disabled.
