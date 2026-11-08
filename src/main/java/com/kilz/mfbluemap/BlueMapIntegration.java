@@ -138,7 +138,7 @@ public class BlueMapIntegration implements Listener {
         this.factionColors.clear();
         plugin.reloadConfig();
 
-        // Load custom overrides from 'factions' section (previously SECTOR)
+        // Load custom overrides from 'factions' section
         if (plugin.getConfig().isConfigurationSection("factions")) {
             for (String factionName : plugin.getConfig().getConfigurationSection("factions").getKeys(false)) {
                 try {
