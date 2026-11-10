@@ -24,7 +24,7 @@ default-color:
   line-opacity: 1.0
 
 # Optional: Override colors for specific factions by name
-# These colors correspond to the 'factions' settings requested (previously SECTOR)
+# Each key is a faction name; see the 'factions' section of CONFIG.md for the fields.
 factions:
   # Example:
   # ExampleFaction:
