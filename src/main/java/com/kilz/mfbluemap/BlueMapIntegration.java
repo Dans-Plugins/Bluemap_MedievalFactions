@@ -230,6 +230,12 @@ public class BlueMapIntegration implements Listener {
                 if (this.scheduledExecutor.isShutdown()) {
                     return; // disabled while this hop was queued
                 }
+                // The listeners are registered before BlueMap finishes loading, so a
+                // claim can arrive before enable() has run. Nothing is lost by skipping
+                // it: enable()'s initial sync reads every faction's claims.
+                if (this.medievalFactions == null) {
+                    return;
+                }
                 List<MfClaimedChunk> snapshot = new ArrayList<>(
                         this.medievalFactions.getServices().getClaimService().getClaimsByFactionId(factionId));
                 this.scheduledExecutor.execute(() -> {
