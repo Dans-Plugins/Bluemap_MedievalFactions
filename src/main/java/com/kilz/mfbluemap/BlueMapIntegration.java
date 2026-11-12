@@ -99,6 +99,19 @@ public class BlueMapIntegration implements Listener {
         BlueMapAPI.getInstance().ifPresent(current -> removeMarkerSets(current.getMaps()));
     }
 
+    /**
+     * Drops the BlueMap instance and its marker sets once BlueMap unloads, as on
+     * /bluemap reload. The old instance is unusable after that: a world lookup that
+     * misses its cache reaches BlueMap's nulled internals and throws. Until enable()
+     * brings in the new instance, redraws find no maps and draw nothing, and
+     * enable()'s initial sync then redraws every faction. Must run on the main thread.
+     */
+    public void disconnect() {
+        this.api = null;
+        this.markerSetsByMapId.clear();
+        this.currentFactionMarkers.clear();
+    }
+
     /** Takes this plugin's marker set off each map, leaving other plugins' sets alone. */
     static void removeMarkerSets(Collection<BlueMapMap> maps) {
         for (BlueMapMap map : maps)

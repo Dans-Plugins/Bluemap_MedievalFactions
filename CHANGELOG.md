@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - A claim, unclaim or disband made while BlueMap was still loading made the plugin log a `NullPointerException` to the console. These events are now skipped until BlueMap is ready. The claims are drawn as soon as it is, because the initial sync reads every faction's claims.
+- After `/bluemap reload`, or after BlueMap was stopped, the plugin kept drawing claims through the BlueMap instance that had been unloaded. Those claims went to marker sets that were no longer shown, and a world lookup could throw a `NullPointerException` on the server thread. The plugin now lets go of the old instance when BlueMap unloads and draws again once BlueMap is back.
 
 ## [1.1.6] – 2026-11-06
 
