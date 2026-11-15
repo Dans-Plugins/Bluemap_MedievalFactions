@@ -12,6 +12,7 @@ public class MF_Bluemap extends JavaPlugin {
     private BlueMapIntegration blueMapIntegration;
     private MedievalFactions medievalFactions;
     private Consumer<BlueMapAPI> blueMapEnableListener;
+    private Consumer<BlueMapAPI> blueMapDisableListener;
 
     @Override
     public void onEnable() {
@@ -41,6 +42,17 @@ public class MF_Bluemap extends JavaPlugin {
         };
         BlueMapAPI.onEnable(this.blueMapEnableListener);
 
+        // BlueMap calls this before it unloads, also off the server thread. The old
+        // API instance stops working once it returns, so the integration lets go of
+        // it. Both hops use the same scheduler queue, so after a /bluemap reload the
+        // disconnect always runs before the enable that follows it.
+        this.blueMapDisableListener = api -> {
+            if (!isEnabled())
+                return;
+            Bukkit.getScheduler().runTask(this, () -> blueMapIntegration.disconnect());
+        };
+        BlueMapAPI.onDisable(this.blueMapDisableListener);
+
         // Save default config
         saveDefaultConfig();
 
@@ -54,6 +66,10 @@ public class MF_Bluemap extends JavaPlugin {
         if (this.blueMapEnableListener != null) {
             BlueMapAPI.unregisterListener(this.blueMapEnableListener);
             this.blueMapEnableListener = null;
+        }
+        if (this.blueMapDisableListener != null) {
+            BlueMapAPI.unregisterListener(this.blueMapDisableListener);
+            this.blueMapDisableListener = null;
         }
         if (this.blueMapIntegration != null) {
             this.blueMapIntegration.disable();
