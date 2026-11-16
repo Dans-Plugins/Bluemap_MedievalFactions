@@ -6,4 +6,4 @@ All functionality — syncing faction claims to the BlueMap overlay, updating ma
 
 ## Configuration
 
-To customise the plugin's behaviour, edit `plugins/MF_Bluemap/config.yml` and restart the server. Because no commands are registered, there is no in-game reload; the configuration is read when the plugin enables. See [CONFIG.md](CONFIG.md) for the full list of options.
+To customise the plugin's behaviour, edit `plugins/MF_Bluemap/config.yml`, then either restart the server or run BlueMap's own `/bluemap reload`. This plugin registers no reload command of its own, but it re-reads its configuration every time BlueMap starts, and that includes after a `/bluemap reload`. Every faction is then redrawn with the new settings. See [CONFIG.md](CONFIG.md) for the full list of options.

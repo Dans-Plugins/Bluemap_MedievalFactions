@@ -27,8 +27,8 @@ Once the plugin is running, no action is needed. Claims are drawn automatically 
 A few things to expect:
 
 - **Changes appear after about 1.5 seconds.** Redraws are debounced, so a burst of claims by one faction produces a single redraw once the claiming stops.
-- **The startup sync is gradual.** Factions are drawn two per second, so on a server with many factions the map takes a while to fill in after a restart.
-- **Renames and colour changes wait for the next redraw.** The plugin does not listen for a faction being renamed or changing its colour flag, so the old label and colour stay on the map until that faction next claims or unclaims a chunk, or the server restarts. Because `factions:` overrides are matched by name, a renamed faction also loses its override at that redraw until the entry is renamed to match.
+- **The startup sync is gradual.** Factions are drawn two per second, so on a server with many factions the map takes a while to fill in after a restart or a `/bluemap reload`.
+- **Renames and colour changes wait for the next redraw.** The plugin does not listen for a faction being renamed or changing its colour flag, so the old label and colour stay on the map until that faction next claims or unclaims a chunk, the server restarts, or `/bluemap reload` is run. Because `factions:` overrides are matched by name, a renamed faction also loses its override at that redraw until the entry is renamed to match.
 
 ### Customising Faction Colours
 
@@ -54,8 +54,9 @@ default-color:
   line-color: "#0055FF"
 ```
 
-Restart the server for changes to take effect. The plugin registers no commands, so
-there is no in-game way to reload its configuration.
+Restart the server or run BlueMap's `/bluemap reload` for changes to take effect. The
+plugin registers no commands of its own, but it re-reads `config.yml` every time BlueMap
+starts, including after a `/bluemap reload`, and then redraws every faction.
 
 ### Changing the Overlay Y-Level
 
