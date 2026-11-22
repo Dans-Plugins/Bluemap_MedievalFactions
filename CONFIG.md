@@ -17,6 +17,10 @@ bluemap:
   y-level: 64.0
 ```
 
+![Side-by-side BlueMap close-ups of a green faction claim: at y-level 70 the polygon is partly hidden under forest canopy; at y-level 100 it is drawn whole above the trees](docs/screenshots/y-level-compare.jpg)
+
+*`y-level: 70.0` (left) against `100.0` (right) over a forest: at 70 the canopy covers much of the claim.*
+
 ---
 
 ## bluemap.label-format

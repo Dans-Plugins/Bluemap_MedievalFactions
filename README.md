@@ -4,10 +4,31 @@
 
 Bluemap_MedievalFactions is a Minecraft plugin that integrates [Medieval Factions](https://github.com/Dans-Plugins/Medieval-Factions) with [BlueMap](https://bluemap.bluecolored.de/), rendering faction land claims as coloured shape overlays on your BlueMap web map. Claimed chunks are merged into contiguous polygons per faction, and redrawn automatically whenever a faction claims or unclaims a chunk or is disbanded.
 
+![BlueMap top-down map of a Minecraft world with red, green, light blue and dark blue outlined polygons marking four factions' claimed chunks](docs/screenshots/claims-overview.jpg)
+
+*Four demo factions' claims on a BlueMap web map. Each faction's claimed chunks are merged into outlined polygons in its own colour (its Medieval Factions colour flag, or one the plugin derives when that flag is unset).*
+
 ## Supported Minecraft Versions
 This plugin is supported on the Minecraft versions listed in [`minecraft-versions.json`](minecraft-versions.json): currently **26.2** and **26.3** (Spigot and its forks). Every stable release is booted on a real server of each of these versions, beside the current stable releases of Medieval Factions and BlueMap, before it is published, and every build checks that the plugin only uses Bukkit API that exists on all of them.
 
 Earlier versions are not listed because of BlueMap, not this plugin: current BlueMap releases are built for Java 25, which only the 26.x servers run, so a 1.21.x server cannot load the BlueMap this plugin is verified against. The plugin itself targets Java 17 and `api-version: 1.21`, and its Bukkit API use also resolves on 1.21.11, so it is expected to work there beside an older BlueMap release that server can run, but that combination is not tested. To support another version, add it to the file: both checks pick it up.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![BlueMap 3D perspective view of forested hills and a river with translucent coloured claim polygons laid over the terrain](docs/screenshots/claims-perspective.jpg) | ![Close-up of a red faction claim on BlueMap with a popup reading Faction: Ashford](docs/screenshots/claim-popup.jpg) |
+| The same claims in BlueMap's 3D perspective view. | Clicking a claim shows its label, set by `bluemap.label-format` (default `Faction: %faction%`). |
+| ![BlueMap side menu listing a Medieval Factions Claims marker set with 6 markers beside the map](docs/screenshots/marker-menu.jpg) | <img src="docs/screenshots/claims-phone.jpg" width="220" alt="BlueMap on a phone-sized screen showing the coloured faction claim polygons over the map"> |
+| The **Medieval Factions Claims** marker set in BlueMap's marker list, where viewers can toggle it. | The overlay in a phone-width browser. |
+
+![Side-by-side BlueMap close-ups of a green faction claim: at y-level 70 the polygon is partly hidden under forest canopy; at y-level 100 it is drawn whole above the trees](docs/screenshots/y-level-compare.jpg)
+
+*`bluemap.y-level` at the default `70.0` (left) and at `100.0` (right). Where terrain or trees rise above the overlay's level, the claim is hidden under them; see [CONFIG.md](CONFIG.md#bluemapy-level).*
+
+These screenshots were captured from a local test server (Spigot 1.21.1, Medieval Factions 11.1.1, BlueMap 5.15 and a build of this plugin from `master`), with four demo factions (Ashford, Briarwood, Coldharbor, Dunmere) created by test bots. Ashford, Briarwood and Coldharbor had their colour flag set with `/f flag set color`; Dunmere's was left at Medieval Factions' default, and the plugin's default `auto` colour mode picked its colour. Every shot except the left half of the y-level comparison uses `y-level: 100.0`. Note that 1.21.1 is not one of the versions in [Supported Minecraft Versions](#supported-minecraft-versions): it was used because the capture machine had no Java 25 for a 26.x server.
+
+**Regenerating screenshots:** with the BlueMap web server running, `darkroom shoot docs/screenshots/media.json --var base=http://127.0.0.1:8100/` (using [darkroom](https://github.com/Preponderous-Software/darkroom)) reshoots them from the shot list; the y-level pair takes `--only y-level --tag before` at `y-level: 70.0`, `--tag after` at `100.0`, then `--only y-level-compare`.
 
 ## Installation
 
