@@ -6,7 +6,7 @@ Bluemap_MedievalFactions is a Minecraft plugin that integrates [Medieval Faction
 
 ![BlueMap top-down map of a Minecraft world with red, green, light blue and dark blue outlined polygons marking four factions' claimed chunks](docs/screenshots/claims-overview.jpg)
 
-*Four demo factions' claims on a BlueMap web map. Each faction's claimed chunks are merged into outlined polygons in its Medieval Factions colour.*
+*Four demo factions' claims on a BlueMap web map. Each faction's claimed chunks are merged into outlined polygons in its own colour (its Medieval Factions colour flag, or one the plugin derives when that flag is unset).*
 
 ## Supported Minecraft Versions
 This plugin is supported on the Minecraft versions listed in [`minecraft-versions.json`](minecraft-versions.json): currently **26.2** and **26.3** (Spigot and its forks). Every stable release is booted on a real server of each of these versions, beside the current stable releases of Medieval Factions and BlueMap, before it is published, and every build checks that the plugin only uses Bukkit API that exists on all of them.

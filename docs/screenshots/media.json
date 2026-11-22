@@ -18,7 +18,7 @@
     {
       "name": "claims-overview",
       "url": "{base}#world:0:64:0:330:0:0:0:0:flat",
-      "caption": "Four factions' claims drawn over a BlueMap top-down render. Each faction's chunks are merged into outlined polygons in its Medieval Factions colour.",
+      "caption": "Four factions' claims drawn over a BlueMap top-down render. Each faction's chunks are merged into outlined polygons in its own colour.",
       "alt": "BlueMap top-down map of a Minecraft world with red, green, light blue and dark blue outlined polygons marking four factions' claimed chunks"
     },
     {
