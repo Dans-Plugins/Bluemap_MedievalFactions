@@ -1,0 +1,84 @@
+{
+  "out": ".",
+  "vars": {
+    "base": "http://127.0.0.1:8100/"
+  },
+  "defaults": {
+    "kind": "still",
+    "device": "desktop",
+    "launchArgs": [],
+    "ready": "document.querySelector('canvas')",
+    "setup": [
+      {
+        "wait": 15000
+      }
+    ]
+  },
+  "shots": [
+    {
+      "name": "claims-overview",
+      "url": "{base}#world:0:64:0:330:0:0:0:0:flat",
+      "caption": "Four factions' claims drawn over a BlueMap top-down render. Each faction's chunks are merged into outlined polygons in its Medieval Factions colour.",
+      "alt": "BlueMap top-down map of a Minecraft world with red, green, light blue and dark blue outlined polygons marking four factions' claimed chunks"
+    },
+    {
+      "name": "claims-perspective",
+      "url": "{base}#world:0:64:-10:260:0.2:0.75:0:0:perspective",
+      "caption": "The same claims in BlueMap's 3D perspective view.",
+      "alt": "BlueMap 3D perspective view of forested hills and a river with translucent coloured claim polygons laid over the terrain"
+    },
+    {
+      "name": "claim-popup",
+      "url": "{base}#world:-88:64:-56:140:0:0:0:0:flat",
+      "steps": [
+        {
+          "tap": [
+            640,
+            360
+          ]
+        },
+        {
+          "wait": 3000
+        }
+      ],
+      "caption": "Clicking a claim opens its label, set by label-format (default \"Faction: %faction%\").",
+      "alt": "Close-up of a red faction claim on BlueMap with a popup reading Faction: Ashford"
+    },
+    {
+      "name": "marker-menu",
+      "url": "{base}#world:0:64:0:330:0:0:0:0:flat",
+      "steps": [
+        {
+          "click": "[title=Marker-List]"
+        },
+        {
+          "wait": 2000
+        }
+      ],
+      "caption": "The Medieval Factions Claims marker set in BlueMap's marker menu, where viewers can toggle it.",
+      "alt": "BlueMap side menu listing a Medieval Factions Claims marker set beside the map"
+    },
+    {
+      "name": "claims-phone",
+      "device": "phone",
+      "url": "{base}#world:0:64:0:420:0:0:0:0:flat",
+      "caption": "The overlay on a phone-width browser.",
+      "alt": "BlueMap on a phone-sized screen showing the coloured faction claim polygons over the map"
+    },
+    {
+      "name": "y-level",
+      "url": "{base}#world:70:64:-60:150:0:0:0:0:flat",
+      "caption": "Briarwood's claim with bluemap.y-level at the default 70 and at 100.",
+      "alt": "BlueMap close-up of a green faction claim over forest"
+    },
+    {
+      "name": "y-level-compare",
+      "kind": "pair",
+      "of": "y-level",
+      "labels": [
+        "y-level: 70.0 (default)",
+        "y-level: 100.0"
+      ]
+    }
+  ]
+}
